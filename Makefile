@@ -23,7 +23,7 @@ $(CARGO):
 	mkdir -p $(dir $@) && ln -s $(CARGO_IN_ENVIRONMENT) $@
 endif
 
-$(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES)
+$(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 	$(CARGO) build
 	
 tests: $(AND_EXECUTABLE_DEBUG)
