@@ -27,3 +27,6 @@
  + Safe programming language that makes it easy to seed most common bugs out at compile-time. Makes it easy to write high-quality, highly maintainable software.
  + Also I want to see if one can optimize the code written for developer productivity by keeping things very straightforward.
  + Otherwise I would have loved to use `crystal`, which to me is like a more simple Rust. However, it doesn't run on Windows yet.
+ 
+ #### Limitations
+ * This project was never tested on Windows, but _should_ work if run in an environment supporting `make` and `bash`.
