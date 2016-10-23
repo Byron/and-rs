@@ -16,6 +16,7 @@ RUST_SOURCE_FILES=$(wildcard **/*.rs)
 ifeq ($(CARGO_IN_ENVIRONMENT),)
 $(CARGO):
 	RUSTUP_HOME="$(RUST_INSTALLDIR)" CARGO_HOME="$(RUST_INSTALLDIR)" bash -c 'curl https://sh.rustup.rs -sSf | sh -s -- -y'
+	$(RUST_INSTALLDIR)/bin/rustup default stable
 else
 $(CARGO):
 	@echo Using system rust installation and trying to assure it is uptodate
