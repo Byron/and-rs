@@ -9,7 +9,7 @@ help:
 
 include .make-config.env
 CARGO_IN_ENVIRONMENT := $(shell command -v cargo 2>&1)
-CARGO=$(RUST_INSTALLDIR)/bin/cargo
+CARGO=$(abspath $(RUST_INSTALLDIR)/bin/cargo)
 AND_EXECUTABLE_DEBUG=target/debug/and
 RUST_SOURCE_FILES=$(wildcard **/*.rs)
 
@@ -25,7 +25,7 @@ $(CARGO):
 endif
 
 $(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
-	$(CARGO) build
+	cd src/cli && $(CARGO) build
 	
 tests: $(AND_EXECUTABLE_DEBUG)
 	bin/tests.sh $(AND_EXECUTABLE_DEBUG)

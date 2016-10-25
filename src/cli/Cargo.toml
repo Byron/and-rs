@@ -1,0 +1,10 @@
+[package]
+name = "and"
+version = "0.1.0"
+authors = ["Sebastian Thiel <byronimo@gmail.com>"]
+
+[dependencies]
+clap = "^ 2"
+
+[dependencies.and]
+path = '../lib'
