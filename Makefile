@@ -1,9 +1,10 @@
-.PHONY: help clean tests
+.PHONY: help clean tests init-osx
 
 help:
 	$(info Make targets)
 	$(info ------------)
 	$(info tests  | run `and` against a suite of tests to assure it works)
+	$(init-osx    | WARNING: affects system: install android tools needed for basic android work)
 	$(info)
 
 
@@ -29,6 +30,9 @@ $(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 	
 tests: $(AND_EXECUTABLE_DEBUG)
 	bin/tests.sh $(AND_EXECUTABLE_DEBUG)
+	
+init-osx:
+	brew install android-sdk
 	
 clean:
 	rm -Rf $(RUST_INSTALLDIR)
