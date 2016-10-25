@@ -3,8 +3,8 @@
 help:
 	$(info Make targets)
 	$(info ------------)
-	$(info tests  | run `and` against a suite of tests to assure it works)
-	$(init-osx    | WARNING: affects system: install android tools needed for basic android work)
+	$(info tests    | run `and` against a suite of tests to assure it works)
+	$(info init-osx | WARNING: affects system: install android tools needed for basic android work)
 	$(info)
 
 
