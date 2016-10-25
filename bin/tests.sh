@@ -7,6 +7,13 @@ function need_cmd() {
   fi
 }
 
+if [[ -n $TRAVIS ]]; then
+  echo "investigating travis"
+  ls -la
+  find . -name aapt -type f
+  find . -name dx -type f
+fi
+
 for cmd in android keytool javac javadoc jarsigner dx zipalign aapt; do
   need_cmd $cmd || exit $?
 done
