@@ -7,11 +7,17 @@ function need_cmd() {
   fi
 }
 
+function find_build_tools_dir() {
+  find /usr/local -name dx -type f 2>/dev/null | while read p; do
+    echo "`dirname $p`"
+    return 0
+  done
+  return 2
+}
+
 if [[ -n $TRAVIS ]]; then
-  echo "investigating travis"
-  ls -la ~
-  find / -name aapt -type f
-  find / -name dx -type f
+  build_tools=`find_build_tools_dir`
+  export PATH=$build_tools:$PATH
 fi
 
 for cmd in android keytool javac javadoc jarsigner dx zipalign aapt; do
