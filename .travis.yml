@@ -1,18 +1,28 @@
-language: rust
-os:
-- linux
-- osx
-rust:
-- stable
-- beta
-- nightly
+language: android
+android:
+  components:
+    # Uncomment the lines below if you want to
+    # use the latest revision of Android SDK Tools
+    - platform-tools
+    # - tools
+
+    # The BuildTools version used by your project
+    # - build-tools-19.1.0
+
+    # The SDK version used to compile your project
+    - android-22
+
+    # Specify at least one system image,
+    # if you need to run emulator(s) during your tests
+    # - sys-img-armeabi-v7a-android-22
+    # - sys-img-x86-android-17
 before_script:
-- pip install 'travis-cargo<0.2' --user  && export PATH=$HOME/Library/Python/2.7/bin:$HOME/.local/bin:$PATH
+  - pip install 'travis-cargo<0.2' --user  && export PATH=$HOME/Library/Python/2.7/bin:$HOME/.local/bin:$PATH
 script:
-- make tests
-- travis-cargo doc
+  - make tests
+  - travis-cargo doc
 after_success:
-- "[[ $TRAVIS_OS_NAME = linux ]] && travis-cargo --only stable doc-upload"
+  - "[[ $TRAVIS_OS_NAME = linux ]] && travis-cargo --only stable doc-upload"
 env:
   global:
     secure: FZEKn/G5uPSc83604kpf3rC4kQC09Ib9wAdMkjytFsmX4q6V2w5B/UPdA2wRqpEX09T9AtJsS4vLDmnsHF8kPXIB4boVh4kiBt5EGWGMlh266BtorrevQgI2/N2fV5iED0xQfB9ufhdKNCnI5/ErsQC3d6KcRu1iWpPamTh7Q1XicsP+JP8vGP+ZNfTUBsTpIQ3xdJCgMTKl9iCsOYIQjy4VUhKM/poQgqb60CWeO9R7Qad7fWxeJ2AD7Uo/I2p4oLHSpcM5UUXWQDQ3g48PBsr99A/40gIZQlMd+/t9/uz8uoRAIBc+23jhUXNkAHFBflCtsfOvtgUsPqJRpaTF3OX1LR0FMHGtcSsC7eQOwdEaccniqyflAWiru5lKkkcqfx9nCMCUM0pB4U5WOylcHuARU9a4xu+ludSajduQgiEUA+PkIenkbnQ38jl2CtZHVihZ3MnHguIvEO/xUBd8BHNwOdbgIfOLfyvN9W8KZskCUhsoXkcLAmzabQUpPsZG/DaDcfhO7i18epsmuj/DPgvSHQx390V0HgnHMIUvF46Z3n7Y+qi22whIsDC1btrVCt+AItB0MJSgqcSkyfTycK3C8Ho++Mz3w8wZQPYGHzU3bWQu6nMWG4pMPi02z6IpC8SLbU1k5qrPMJ9Q2xOru3yr0XeG4W3HiTXZg/watQE=
