@@ -11,7 +11,7 @@ include .make-config.env
 CARGO_IN_ENVIRONMENT := $(shell command -v cargo 2>&1)
 CARGO=$(abspath $(RUST_INSTALLDIR)/bin/cargo)
 AND_EXECUTABLE_DEBUG=target/debug/and
-RUST_SOURCE_FILES=$(wildcard **/*.rs)
+RUST_SOURCE_FILES=$(shell find src -name '*.rs' -type f)
 
 ifeq ($(CARGO_IN_ENVIRONMENT),)
 $(CARGO):
