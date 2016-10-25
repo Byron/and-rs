@@ -7,7 +7,7 @@ function need_cmd() {
   fi
 }
 
-for cmd in android keytool javac javadoc jarsigner zipalign aapt dx; do
+for cmd in android keytool javac javadoc jarsigner dx zipalign aapt; do
   need_cmd $cmd || exit $?
 done
 
