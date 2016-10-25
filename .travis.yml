@@ -20,7 +20,7 @@ before_script:
   - pip install 'travis-cargo<0.2' --user  && export PATH=$HOME/Library/Python/2.7/bin:$HOME/.local/bin:$PATH
 script:
   - make tests
-  - travis-cargo doc
+  - source .make-config.env && PATH=$PATH:$RUST_INSTALLDIR/bin travis-cargo doc
 after_success:
   - "[[ $TRAVIS_OS_NAME = linux ]] && travis-cargo --only stable doc-upload"
 env:

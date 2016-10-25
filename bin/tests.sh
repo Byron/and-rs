@@ -2,7 +2,7 @@
 
 function need_cmd() {
   if ! command -v $1 >/dev/null 2>&1; then
-    echo "Need command to be available: $1" 1>&2
+    echo "Need command to be available: $1 - consider running make init-<platform>" 1>&2
     return 2
   fi
 }

@@ -30,6 +30,6 @@
  
 #### Limitations
  * This project was never tested on Windows, but _should_ work if run in an environment supporting `make` and `bash`.
- * Only `init-osx` is provided to help developer to get started. Other platforms are out of scope. It would be possible to install them only locally, using the [manual installation steps provided here][manual-android-platform-tools]
+ * Only `init-osx` is provided to help developer to get started. Other platforms are out of scope. It would be possible to install them only locally, using the [installation steps provided here][manual-android-platform-tools]
    
 [manual-android-platform-tools]: http://stackoverflow.com/questions/31374085/installing-adb-on-mac-os-x

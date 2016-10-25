@@ -7,9 +7,8 @@ help:
 	$(info init-osx | WARNING: affects system: install android tools needed for basic android work)
 	$(info)
 
-
-RUST_INSTALLDIR=.rust
-CARGO_IN_ENVIRONMENT := $(shell command -v cargo >/dev/null 2>&1)
+include .make-config.env
+CARGO_IN_ENVIRONMENT := $(shell command -v cargo 2>&1)
 CARGO=$(RUST_INSTALLDIR)/bin/cargo
 AND_EXECUTABLE_DEBUG=target/debug/and
 RUST_SOURCE_FILES=$(wildcard **/*.rs)
