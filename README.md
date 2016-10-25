@@ -6,6 +6,8 @@
  + `make`
 * Run acceptance tests
  + `make tests`
+* Build the release-binary for the current platform
+ + `make release-build`
 
 *Please note:* that make will install `rust` as project-local asset, provided you have no system installation. In the latter case, it will try to assure it is up-to-date by running `rustup|multirust update stable` just once.
 

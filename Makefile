@@ -1,16 +1,18 @@
-.PHONY: help clean tests init-osx
+.PHONY: help clean tests init-osx release-build
 
 help:
 	$(info Make targets)
 	$(info ------------)
-	$(info tests    | run `and` against a suite of tests to assure it works)
-	$(info init-osx | WARNING: affects system: install android tools needed for basic android work)
+	$(info tests         | run `and` against a suite of tests to assure it works)
+	$(info release-build | build a release binary of the and tool)
+	$(info init-osx      | WARNING: affects system: install android tools needed for basic android work)
 	$(info)
 
 include .make-config.env
 CARGO_IN_ENVIRONMENT := $(shell command -v cargo 2>&1)
 CARGO=$(abspath $(RUST_INSTALLDIR)/bin/cargo)
 AND_EXECUTABLE_DEBUG=src/cli/target/debug/and
+AND_EXECUTABLE_RELEASE=src/cli/target/release/and
 RUST_SOURCE_FILES=$(shell find src -name '*.rs' -type f)
 
 ifeq ($(CARGO_IN_ENVIRONMENT),)
@@ -24,16 +26,27 @@ $(CARGO):
 	mkdir -p $(dir $@) && ln -s $(CARGO_IN_ENVIRONMENT) $@
 endif
 
+$(AND_EXECUTABLE_RELEASE): $(RUST_SOURCE_FILES) $(CARGO)
+	cd src/cli && $(CARGO) build --release
+	
 $(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 	cd src/cli && $(CARGO) build
 	
 tests: $(AND_EXECUTABLE_DEBUG)
 	bin/tests.sh $(AND_EXECUTABLE_DEBUG)
 	
+$(DIST_DIR)/and: $(AND_EXECUTABLE_RELEASE)
+	@mkdir -p $(DIST_DIR)
+	@cp $< $@
+	@echo "Release build ready at $@"
+	
+release-build: $(DIST_DIR)/and
+	
 init-osx:
 	brew install android-sdk
 	
 clean:
 	rm -Rf $(RUST_INSTALLDIR)
+	rm -Rf $(DIST_DIR)
 	cd src/cli && cargo clean
 	cd src/lib && cargo clean
