@@ -1,4 +1,4 @@
-.PHONY: help clean tests init-osx release-build
+.PHONY: help clean tests init-osx release-build check
 
 help:
 	$(info Make targets)
@@ -32,7 +32,10 @@ $(AND_EXECUTABLE_RELEASE): $(RUST_SOURCE_FILES) $(CARGO)
 $(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 	cd src/cli && $(CARGO) build
 	
-tests: $(AND_EXECUTABLE_DEBUG)
+check:
+	bin/check.sh
+	
+tests: $(AND_EXECUTABLE_DEBUG) check
 	bin/tests.sh $(AND_EXECUTABLE_DEBUG)
 	
 $(DIST_DIR)/and: $(AND_EXECUTABLE_RELEASE)
