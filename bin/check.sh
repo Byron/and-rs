@@ -1,4 +1,5 @@
 #!/bin/bash
+source "`dirname $0`/fix-travis.sh"
 
 function need_cmd() {
   if ! command -v $1 >/dev/null 2>&1; then

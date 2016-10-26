@@ -1,25 +1,15 @@
 #!/bin/bash
-
-function find_build_tools_dir() {
-  find /usr/local -name dx -type f 2>/dev/null | while read p; do
-    echo "`dirname $p`"
-    return 0
-  done
-  return 2
-}
-
-if [[ -n $TRAVIS ]]; then
-  build_tools=`find_build_tools_dir`
-  export PATH=$build_tools:$PATH
-fi
+source "`dirname $0`/fix-travis.sh"
 
 function it () {
   local description=${1:?Need description text}
   local test_function=${2:?Need function to execute}
   local result
   echo -n "$description"
+
   local result
   result=`eval $test_function 2>&1`
+
   if [ $? = 0 ]; then
     echo " - OK" 1>&2
   else
