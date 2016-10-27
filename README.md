@@ -33,6 +33,6 @@
 #### Limitations
  * This project was never tested on Windows, but _should_ work if run in an environment supporting `make` and `bash`.
  * Only `init-osx` is provided to help developer to get started. Other platforms are out of scope. It would be possible to install them only locally, using the [installation steps provided here][manual-android-platform-tools]
- * The makefile is fine trying to use the system-provided ruby installation if present but does not check the version. It could be possible that older ruby versions are not compatible with the syntax used in the specs.
+ * During ruby installation, you will be asked for your password without knowing what it is for. Ideally, one would swap-in a `sudo` that provides more information, and allows to skip executing the installation command entirely.
    
 [manual-android-platform-tools]: http://stackoverflow.com/questions/31374085/installing-adb-on-mac-os-x
