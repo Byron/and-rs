@@ -45,10 +45,10 @@ $(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 	cd src/cli && $(CARGO) build
 	
 check:
-	bin/check.sh
+	@bin/check.sh
 	
 tests: $(AND_EXECUTABLE_DEBUG) check $(RSPEC)
-	cd tests && EXECUTABLE=$(AND_EXECUTABLE_DEBUG) $(RSPEC) --fail-fast --format documentation --color *.rb
+	EXECUTABLE=$(AND_EXECUTABLE_DEBUG) $(RSPEC) --fail-fast --format documentation --color tests/*.rb
 	
 $(DIST_DIR)/and: $(AND_EXECUTABLE_RELEASE)
 	@mkdir -p $(DIST_DIR)
