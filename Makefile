@@ -12,6 +12,7 @@ include .make-config.env
 CARGO_IN_ENVIRONMENT := $(shell command -v cargo 2>&1)
 CARGO=$(abspath $(RUST_INSTALLDIR)/bin/cargo)
 RUBY=$(abspath $(RUBY_INSTALLDIR)/bin/ruby)
+RSPEC=$(abspath $(RUBY_INSTALLDIR)/bin/rspec)
 AND_EXECUTABLE_DEBUG=src/cli/target/debug/and
 AND_EXECUTABLE_RELEASE=src/cli/target/release/and
 RUST_SOURCE_FILES=$(shell find src -name '*.rs' -type f)
@@ -22,6 +23,9 @@ $(RUBY):
 	mkdir -p .tmp && tar --strip 1 -xzvf ri.tar.gz -C .tmp && rm ri.tar.gz
 	.tmp/bin/ruby-install -j2 --install-dir $(abspath $(RUBY_INSTALLDIR)) ruby 2.3 -- --disable-install-rdoc
 	rm -Rf .tmp
+
+$(RSPEC): $(RUBY)
+	$(dir $<)/gem install rspec
 
 ifeq ($(CARGO_IN_ENVIRONMENT),)
 $(CARGO):
@@ -43,8 +47,8 @@ $(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 check:
 	bin/check.sh
 	
-tests: $(AND_EXECUTABLE_DEBUG) check $(RUBY)
-	bin/tests.sh $(AND_EXECUTABLE_DEBUG)
+tests: $(AND_EXECUTABLE_DEBUG) check $(RSPEC)
+	cd tests && EXECUTABLE=$(AND_EXECUTABLE_DEBUG) $(RSPEC) --fail-fast --format documentation --color *.rb
 	
 $(DIST_DIR)/and: $(AND_EXECUTABLE_RELEASE)
 	@mkdir -p $(DIST_DIR)

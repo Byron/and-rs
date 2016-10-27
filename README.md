@@ -34,5 +34,6 @@
  * This project was never tested on Windows, but _should_ work if run in an environment supporting `make` and `bash`.
  * Only `init-osx` is provided to help developer to get started. Other platforms are out of scope. It would be possible to install them only locally, using the [installation steps provided here][manual-android-platform-tools]
  * During ruby installation, you will be asked for your password without knowing what it is for. Ideally, one would swap-in a `sudo` that provides more information, and allows to skip executing the installation command entirely.
+ * If you use `rvm`, `rspec` might simply not work. I uninstalled it, never liked its intrusiveness, and given how easy a local installation is, that is the way to go for me from now on. Lesson learned.
    
 [manual-android-platform-tools]: http://stackoverflow.com/questions/31374085/installing-adb-on-mac-os-x
