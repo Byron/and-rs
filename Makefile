@@ -17,11 +17,12 @@ AND_EXECUTABLE_DEBUG=src/cli/target/debug/and
 AND_EXECUTABLE_RELEASE=src/cli/target/release/and
 RUST_SOURCE_FILES=$(shell find src -name '*.rs' -type f)
 
-ifneq ($(RUBY_IN_ENVIRONMENT),)
+ifeq ($(RUBY_IN_ENVIRONMENT),)
 $(RUBY):
-	-rm -Rf .tmp
-	git clone --depth 1 https://github.com/rbenv/ruby-build.git .tmp
-	.tmp/bin/ruby-build 2.3.0 $(abspath $(RUBY_INSTALLDIR))
+	curl -sSLo ri.tar.gz https://github.com/postmodern/ruby-install/archive/v0.6.0.tar.gz
+	mkdir -p .tmp && tar --strip 1 -xzvf ri.tar.gz -C .tmp && rm ri.tar.gz
+	cd .tmp && PREFIX=inst make install
+	.tmp/inst/bin/ruby-install --install-dir $(abspath $(RUBY_INSTALLDIR)) ruby 2.3
 	rm -Rf .tmp
 else
 $(RUBY):
