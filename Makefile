@@ -19,10 +19,10 @@ RUST_SOURCE_FILES=$(shell find src -name '*.rs' -type f)
 
 ifeq ($(RUBY_IN_ENVIRONMENT),)
 $(RUBY):
+	@-rm -Rf .tmp
 	curl -sSLo ri.tar.gz https://github.com/postmodern/ruby-install/archive/v0.6.0.tar.gz
 	mkdir -p .tmp && tar --strip 1 -xzvf ri.tar.gz -C .tmp && rm ri.tar.gz
-	cd .tmp && PREFIX=inst make install
-	.tmp/inst/bin/ruby-install --install-dir $(abspath $(RUBY_INSTALLDIR)) ruby 2.3
+	.tmp/bin/ruby-install -j2 --install-dir $(abspath $(RUBY_INSTALLDIR)) ruby 2.3 -- --disable-install-rdoc
 	rm -Rf .tmp
 else
 $(RUBY):
