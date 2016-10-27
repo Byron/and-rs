@@ -8,6 +8,10 @@ function need_cmd() {
   fi
 }
 
+for cmd in tr ; do
+  need_cmd $cmd "This one is considered a standard tool" || exit $?
+done
+
 for cmd in keytool javac javadoc jarsigner ; do
   need_cmd $cmd "Please be sure to have a working java installation" || exit $?
 done
