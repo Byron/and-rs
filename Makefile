@@ -11,9 +11,24 @@ help:
 include .make-config.env
 CARGO_IN_ENVIRONMENT := $(shell command -v cargo 2>&1)
 CARGO=$(abspath $(RUST_INSTALLDIR)/bin/cargo)
+RUBY_IN_ENVIRONMENT := $(shell command -v ruby 2>&1)
+RUBY=$(abspath $(RUBY_INSTALLDIR)/bin/ruby)
 AND_EXECUTABLE_DEBUG=src/cli/target/debug/and
 AND_EXECUTABLE_RELEASE=src/cli/target/release/and
 RUST_SOURCE_FILES=$(shell find src -name '*.rs' -type f)
+
+ifeq ($(RUBY_IN_ENVIRONMENT),)
+$(RUBY):
+	curl -sSLo ri.tar.gz https://github.com/postmodern/ruby-install/archive/v0.6.0.tar.gz
+	mkdir -p .tmp && tar --strip 1 -xzvf ri.tar.gz -C .tmp && rm ri.tar.gz
+	cd .tmp && PREFIX=inst make install
+	.tmp/inst/bin/ruby-install --install-dir $(abspath $(RUBY_INSTALLDIR)) ruby 2.3
+	rm -Rf .tmp
+else
+$(RUBY):
+	@echo Using system ruby installation
+	mkdir -p $(dir $@) && ln -s $(RUBY_IN_ENVIRONMENT) $@
+endif
 
 ifeq ($(CARGO_IN_ENVIRONMENT),)
 $(CARGO):
@@ -35,7 +50,7 @@ $(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 check:
 	bin/check.sh
 	
-tests: $(AND_EXECUTABLE_DEBUG) check
+tests: $(AND_EXECUTABLE_DEBUG) check $(RUBY)
 	bin/tests.sh $(AND_EXECUTABLE_DEBUG)
 	
 $(DIST_DIR)/and: $(AND_EXECUTABLE_RELEASE)
@@ -50,6 +65,7 @@ init-osx:
 	
 clean:
 	rm -Rf $(RUST_INSTALLDIR)
+	rm -Rf $(RUBY_INSTALLDIR)
 	rm -Rf $(DIST_DIR)
 	cd src/cli && cargo clean
 	cd src/lib && cargo clean
