@@ -1,4 +1,4 @@
-.PHONY: help clean spec init-osx release-build check
+.PHONY: help clean spec init-osx release-build
 
 help:
 	$(info Make targets)
@@ -38,10 +38,8 @@ $(AND_EXECUTABLE_RELEASE): $(RUST_SOURCE_FILES) $(CARGO)
 $(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 	cd src/cli && $(CARGO) build
 	
-check:
+spec: $(AND_EXECUTABLE_DEBUG) $(CRYSTAL)
 	@bin/check.sh all
-	
-spec: $(AND_EXECUTABLE_DEBUG) check $(CRYSTAL)
 	EXECUTABLE=$(AND_EXECUTABLE_DEBUG) $(CRYSTAL) spec
 	
 $(DIST_DIR)/and: $(AND_EXECUTABLE_RELEASE)
