@@ -33,10 +33,15 @@ def and(runner, more_args)
   runner.call more_args, nil
 end
 
-def sandboxed_and(runner, more_args)
+def sandboxed_and(runner, more_args, &block)
   tmpdir = `mktemp -d`
   tmpdir = tmpdir.strip
-  runner.call more_args, tmpdir
+  process = runner.call more_args, tmpdir
+  
+  yield process
+  
+  `rm -Rf #{process.sandbox_dir}`
+  process.sandbox_dir = nil
 end
 
 struct ProcessExpectation
@@ -44,12 +49,7 @@ struct ProcessExpectation
   end
 
   def match(actual_value)
-    res = actual_value.result.exit_status == @expected_value
-    if res == true && actual_value.sandbox_dir
-      `rm -Rf #{actual_value.sandbox_dir}`
-      actual_value.sandbox_dir = nil
-    end
-    res
+    actual_value.result.exit_status == @expected_value
   end
 
   def failure_message(actual_value)
