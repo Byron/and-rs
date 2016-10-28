@@ -1,6 +1,6 @@
 require "spec"
 
-describe Spec do
+describe "`and` program" do
   # TODO: Write tests
 
   it "works" do

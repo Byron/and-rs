@@ -2,4 +2,5 @@ target/
 .rust/
 .crystal/
 dist/
+spec/.ok
 

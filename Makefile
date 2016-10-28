@@ -15,6 +15,8 @@ CRYSTAL=$(abspath $(CRYSTAL_INSTALLDIR)/bin/crystal)
 AND_EXECUTABLE_DEBUG=src/cli/target/debug/and
 AND_EXECUTABLE_RELEASE=src/cli/target/release/and
 RUST_SOURCE_FILES=$(shell find src -name '*.rs' -type f)
+CRYSTAL_SOURCE_FILES=$(shell find spec -name '*.cr' -type f)
+SPEC_OK=spec/.ok
 
 $(CRYSTAL):
 	@bin/check.sh basic
@@ -38,9 +40,11 @@ $(AND_EXECUTABLE_RELEASE): $(RUST_SOURCE_FILES) $(CARGO)
 $(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 	cd src/cli && $(CARGO) build
 	
-spec: $(AND_EXECUTABLE_DEBUG) $(CRYSTAL)
+$(SPEC_OK): $(AND_EXECUTABLE_DEBUG) $(CRYSTAL) $(CRYSTAL_SOURCE_FILES)
 	@bin/check.sh all
-	EXECUTABLE=$(AND_EXECUTABLE_DEBUG) $(CRYSTAL) spec
+	EXECUTABLE=$(AND_EXECUTABLE_DEBUG) $(CRYSTAL) spec && touch $(SPEC_OK) || rm -f $(SPEC_OK)
+	
+spec: $(SPEC_OK)
 	
 $(DIST_DIR)/and: $(AND_EXECUTABLE_RELEASE)
 	@mkdir -p $(DIST_DIR)
@@ -56,5 +60,6 @@ clean:
 	rm -Rf $(RUST_INSTALLDIR)
 	rm -Rf $(CRYSTAL_INSTALLDIR)
 	rm -Rf $(DIST_DIR)
+	rm -f $(SPEC_OK)
 	cd src/cli && cargo clean
 	cd src/lib && cargo clean
