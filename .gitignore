@@ -1,5 +1,5 @@
 target/
 .rust/
-.ruby/
+.crystal/
 dist/
 

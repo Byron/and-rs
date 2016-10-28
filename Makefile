@@ -1,9 +1,9 @@
-.PHONY: help clean tests init-osx release-build check
+.PHONY: help clean specs init-osx release-build check
 
 help:
 	$(info Make targets)
 	$(info ------------)
-	$(info tests         | run `and` against a suite of tests to assure it works)
+	$(info specs         | run `and` against a suite of specifications to assure it works)
 	$(info release-build | build a release binary of the and tool)
 	$(info init-osx      | WARNING: affects system: install android tools needed for basic android work)
 	$(info)
@@ -11,28 +11,15 @@ help:
 include .make-config.env
 CARGO_IN_ENVIRONMENT := $(shell command -v cargo 2>&1)
 CARGO=$(abspath $(RUST_INSTALLDIR)/bin/cargo)
-RUBY_IN_ENVIRONMENT := $(shell command -v ruby 2>&1)
-RUBY=$(abspath $(RUBY_INSTALLDIR)/bin/ruby)
-RSPEC=$(abspath $(RUBY_INSTALLDIR)/bin/rspec)
+CRYSTAL=$(abspath $(CRYSTAL_INSTALLDIR)/bin/crystal)
 AND_EXECUTABLE_DEBUG=src/cli/target/debug/and
 AND_EXECUTABLE_RELEASE=src/cli/target/release/and
 RUST_SOURCE_FILES=$(shell find src -name '*.rs' -type f)
 
-ifeq ($(RUBY_IN_ENVIRONMENT),)
-$(RUBY):
-	@-rm -Rf .tmp
-	curl -sSLo ri.tar.gz https://github.com/postmodern/ruby-install/archive/v0.6.0.tar.gz
-	mkdir -p .tmp && tar --strip 1 -xzvf ri.tar.gz -C .tmp && rm ri.tar.gz
-	.tmp/bin/ruby-install -j2 --install-dir $(abspath $(RUBY_INSTALLDIR)) ruby 2.3 -- --disable-install-rdoc
-	rm -Rf .tmp
-else
-$(RUBY):
-	@echo Using system ruby installation
-	mkdir -p $(dir $@) && ln -s $(RUBY_IN_ENVIRONMENT) $@
-endif
-
-$(RSPEC): $(RUBY)
-	$(dir $<)/gem install rspec
+$(CRYSTAL):
+	@bin/check.sh basic
+	curl -sSLo cr.tar.gz https://github.com/crystal-lang/crystal/releases/download/0.19.4/crystal-0.19.4-1-`uname -s | tr '[:upper:]' '[:lower:]'`-`uname -m`.tar.gz
+	mkdir -p $(CRYSTAL_INSTALLDIR) && tar --strip 1 -xzf cr.tar.gz -C $(CRYSTAL_INSTALLDIR) && rm cr.tar.gz
 
 ifeq ($(CARGO_IN_ENVIRONMENT),)
 $(CARGO):
@@ -52,10 +39,10 @@ $(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 	cd src/cli && $(CARGO) build
 	
 check:
-	@bin/check.sh
+	@bin/check.sh all
 	
-tests: $(AND_EXECUTABLE_DEBUG) check $(RSPEC)
-	EXECUTABLE=$(AND_EXECUTABLE_DEBUG) $(RSPEC) --fail-fast --format documentation --color tests/*.rb
+specs: $(AND_EXECUTABLE_DEBUG) check $(CRYSTAL)
+	EXECUTABLE=$(AND_EXECUTABLE_DEBUG) $(CRYSTAL) spec specs/*.cr
 	
 $(DIST_DIR)/and: $(AND_EXECUTABLE_RELEASE)
 	@mkdir -p $(DIST_DIR)
@@ -69,7 +56,7 @@ init-osx:
 	
 clean:
 	rm -Rf $(RUST_INSTALLDIR)
-	rm -Rf $(RUBY_INSTALLDIR)
+	rm -Rf $(CRYSTAL_INSTALLDIR)
 	rm -Rf $(DIST_DIR)
 	cd src/cli && cargo clean
 	cd src/lib && cargo clean
