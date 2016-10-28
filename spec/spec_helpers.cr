@@ -16,17 +16,17 @@ struct ExecutionResult
   end
 end
 
-def process_details (p)
+def process_details (process)
   <<-STRING
   
   
   DETAILS:
     --- STDOUT ---
-    #{p.output.to_s}
+    #{process.output.to_s}
     --- STDERR ---
-    #{p.error.to_s}
-    #{if p.sandbox_dir
-    "Program sandbox accessible at #{p.sandbox_dir}"
+    #{process.error.to_s}
+    #{if process.sandbox_dir
+    "Program sandbox accessible at #{process.sandbox_dir}"
       end}
   STRING
 end
