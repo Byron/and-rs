@@ -7,7 +7,9 @@ struct ExitStatus
   end
 end
 
-alias ExecutionResult = NamedTuple(result: Process::Status, output: MemoryIO, error: MemoryIO)
+alias ExecutionResult = NamedTuple(result: Process::Status,
+                                   output: MemoryIO,
+                                   error: MemoryIO)
 
 def process_details (p)
   <<-STRING
@@ -51,7 +53,7 @@ def be_failing_with(exit_code)
 end
 
 def be_successful()
-  ProcessExpectation.new 0
+  ProcessExpectation.new ExitStatus.new 0
 end
 
 def run_with(args)
