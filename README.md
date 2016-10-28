@@ -5,7 +5,7 @@
 * Learn about what the build system can do
  + `make`
 * Run acceptance tests
- + `make specs`
+ + `make spec`
 * Build the release-binary for the current platform
  + `make release-build`
 
@@ -31,6 +31,7 @@
  + Otherwise I would have loved to use `crystal`, which to me is like a more simple Rust. However, it doesn't run on Windows yet.
 * `Crystal`
  + specs are good-looking and easy to write, and that comes out of the box.
+ + it's like a more ergonomic, easier to use and learn Rust.
  
 #### Limitations
  * This project was never tested on Windows, but _should_ work if run in an environment supporting `make` and `bash`.

@@ -1,9 +1,9 @@
-.PHONY: help clean specs init-osx release-build check
+.PHONY: help clean spec init-osx release-build check
 
 help:
 	$(info Make targets)
 	$(info ------------)
-	$(info specs         | run `and` against a suite of specifications to assure it works)
+	$(info spec          | run `and` against a suite of specifications to assure it works)
 	$(info release-build | build a release binary of the and tool)
 	$(info init-osx      | WARNING: affects system: install android tools needed for basic android work)
 	$(info)
@@ -41,8 +41,8 @@ $(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 check:
 	@bin/check.sh all
 	
-specs: $(AND_EXECUTABLE_DEBUG) check $(CRYSTAL)
-	EXECUTABLE=$(AND_EXECUTABLE_DEBUG) $(CRYSTAL) spec specs/*.cr
+spec: $(AND_EXECUTABLE_DEBUG) check $(CRYSTAL)
+	EXECUTABLE=$(AND_EXECUTABLE_DEBUG) $(CRYSTAL) spec
 	
 $(DIST_DIR)/and: $(AND_EXECUTABLE_RELEASE)
 	@mkdir -p $(DIST_DIR)
