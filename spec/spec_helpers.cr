@@ -1,5 +1,7 @@
 require "spec"
 require "io"
+require "file_utils"
+require "file"
 
 struct ExitStatus
   getter status
@@ -33,14 +35,32 @@ def and(runner, more_args)
   runner.call more_args, nil
 end
 
+struct DirectoryExpecation
+  def initialize(@expected_value : String)
+  end
+  
+  def match(actual_value : String)
+    File.exists? File.join actual_value, @expected_value
+  end
+  
+  def failure_message(actual_value)
+    "expected sandbox to contain: #{@expected_value}"
+  end
+
+  def negative_failure_message(actual_value)
+    failure_message actual_value
+  end
+end
+
 def sandboxed_and(runner, more_args, &block)
   tmpdir = `mktemp -d`
   tmpdir = tmpdir.strip
   process = runner.call more_args, tmpdir
+  process.sandbox_dir = tmpdir
   
-  yield process
-  
-  `rm -Rf #{process.sandbox_dir}`
+  yield process, tmpdir
+
+  FileUtils.rm_r tmpdir
   process.sandbox_dir = nil
 end
 
@@ -53,12 +73,16 @@ struct ProcessExpectation
   end
 
   def failure_message(actual_value)
-    "expected process to exit with: #{@expected_value.status} \n     got: #{actual_value.result.exit_status}" + process_details actual_value
+    "expected process to exit with: #{@expected_value.status} \n     got: #{actual_value.result.exit_status} #{process_details actual_value}"
   end
 
   def negative_failure_message(actual_value)
     failure_message actual_value
   end
+end
+
+def have_file(file)
+  DirectoryExpecation.new file
 end
 
 def exit_status(value)
@@ -74,7 +98,7 @@ def be_successful()
 end
 
 def run_with(args)
-  ->(more_args : String, sandbox_dir : String|Nil) {
+  ->(more_args : String, chdir : String|Nil) {
     output = MemoryIO.new()
     error = MemoryIO.new()
     ExecutionResult.new(result: Process.run(
@@ -82,10 +106,10 @@ def run_with(args)
         shell: false,
         args: "#{args} #{more_args}".split(' '),
         output: output, error: error, input: false,
-        chdir: sandbox_dir),
+        chdir: chdir),
       output: output,
       error: error,
-      sandbox_dir: sandbox_dir
+      sandbox_dir: nil
     )
   }
 end

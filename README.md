@@ -32,6 +32,7 @@
 * `Crystal`
  + specs are good-looking and easy to write, and that comes out of the box.
  + it's like a more ergonomic, easier to use and learn Rust.
+ + I consider it acceptable to not be able to run acceptance tests on windows for now.
  
 #### Limitations
  * This project was never tested on Windows, but _should_ work if run in an environment supporting `make` and `bash`.
