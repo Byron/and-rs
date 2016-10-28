@@ -42,7 +42,7 @@ $(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 	
 $(SPEC_OK): $(AND_EXECUTABLE_DEBUG) $(CRYSTAL) $(CRYSTAL_SOURCE_FILES)
 	@bin/check.sh all
-	EXECUTABLE=$(AND_EXECUTABLE_DEBUG) $(CRYSTAL) spec && touch $(SPEC_OK) || { rm -f $(SPEC_OK) && exit 3; }
+	EXECUTABLE=$(abspath $(AND_EXECUTABLE_DEBUG)) $(CRYSTAL) spec && touch $(SPEC_OK) || { rm -f $(SPEC_OK) && exit 3; }
 	
 spec: $(SPEC_OK)
 	

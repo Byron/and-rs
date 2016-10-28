@@ -7,9 +7,12 @@ struct ExitStatus
   end
 end
 
-alias ExecutionResult = NamedTuple(result: Process::Status,
-                                   output: MemoryIO,
-                                   error: MemoryIO)
+struct ExecutionResult
+  getter result, output, error
+  property sandbox_dir
+  def initialize(@result : Process::Status, @output : MemoryIO, @error : MemoryIO, @sandbox_dir : String|Nil)
+  end
+end
 
 def process_details (p)
   <<-STRING
@@ -17,14 +20,23 @@ def process_details (p)
   
   DETAILS:
     --- STDOUT ---
-    #{p[:output].to_s}
+    #{p.output.to_s}
     --- STDERR ---
-    #{p[:error].to_s}
+    #{p.error.to_s}
+    #{if p.sandbox_dir
+    "Program sandbox accessible at #{p.sandbox_dir}"
+      end}
   STRING
 end
 
 def and(runner, more_args)
-  runner.call more_args
+  runner.call more_args, nil
+end
+
+def sandboxed_and(runner, more_args)
+  tmpdir = `mktemp -d`
+  tmpdir = tmpdir.strip
+  runner.call more_args, tmpdir
 end
 
 struct ProcessExpectation
@@ -32,11 +44,16 @@ struct ProcessExpectation
   end
 
   def match(actual_value)
-    actual_value[:result].exit_status == @expected_value
+    res = actual_value.result.exit_status == @expected_value
+    if res == true && actual_value.sandbox_dir
+      `rm -Rf #{actual_value.sandbox_dir}`
+      actual_value.sandbox_dir = nil
+    end
+    res
   end
 
   def failure_message(actual_value)
-    "expected process to exit with: #{@expected_value.status} \n     got: #{actual_value[:result].exit_status}" + process_details actual_value
+    "expected process to exit with: #{@expected_value.status} \n     got: #{actual_value.result.exit_status}" + process_details actual_value
   end
 
   def negative_failure_message(actual_value)
@@ -57,17 +74,18 @@ def be_successful()
 end
 
 def run_with(args)
-  ->(more_args : String) {
+  ->(more_args : String, sandbox_dir : String|Nil) {
     output = MemoryIO.new()
     error = MemoryIO.new()
-    {
-      result: Process.run(
+    ExecutionResult.new(result: Process.run(
         command: ENV["EXECUTABLE"], 
         shell: false,
         args: "#{args} #{more_args}".split(' '),
-        output: output, error: error, input: false),
+        output: output, error: error, input: false,
+        chdir: sandbox_dir),
       output: output,
-      error: error
-    }
+      error: error,
+      sandbox_dir: sandbox_dir
+    )
   }
 end

@@ -8,7 +8,7 @@ describe "`and" do
     end
     
     it "successfully creates a project if the project name is valid" do
-      (and new_, "HelloWorld").should be_successful
+      (sandboxed_and new_, "HelloWorld").should be_successful
     end
   end
 end
