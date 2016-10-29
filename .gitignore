@@ -1,6 +1,7 @@
 target/
 .rust/
 .crystal/
+.tmp/
 dist/
 spec/.ok
 

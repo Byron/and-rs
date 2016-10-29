@@ -16,6 +16,7 @@ ANDERS_EXECUTABLE_DEBUG=src/cli/target/debug/anders
 ANDERS_EXECUTABLE_RELEASE=src/cli/target/release/anders
 RUST_SOURCE_FILES=$(shell find src -name '*.rs' -type f)
 CRYSTAL_SOURCE_FILES=$(shell find spec -name '*.cr' -type f)
+SPEC_EXECUTABLE=.tmp/spec-runner
 SPEC_OK=spec/.ok
 
 $(CRYSTAL):
@@ -40,9 +41,13 @@ $(ANDERS_EXECUTABLE_RELEASE): $(RUST_SOURCE_FILES) $(CARGO)
 $(ANDERS_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 	cd src/cli && $(CARGO) build
 	
-$(SPEC_OK): $(ANDERS_EXECUTABLE_DEBUG) $(CRYSTAL) $(CRYSTAL_SOURCE_FILES)
+$(SPEC_EXECUTABLE): $(CRYSTAL) $(CRYSTAL_SOURCE_FILES)
+	@mkdir -p $(dir $@)
+	$(CRYSTAL) build -o $@ spec/acceptance_spec.cr
+	
+$(SPEC_OK): $(ANDERS_EXECUTABLE_DEBUG) $(SPEC_EXECUTABLE)
 	@bin/check.sh all
-	EXECUTABLE=$(abspath $(ANDERS_EXECUTABLE_DEBUG)) $(CRYSTAL) spec && touch $(SPEC_OK) || { rm -f $(SPEC_OK) && exit 3; }
+	EXECUTABLE=$(abspath $(ANDERS_EXECUTABLE_DEBUG)) $(SPEC_EXECUTABLE) && touch $(SPEC_OK) || { rm -f $(SPEC_OK) && exit 3; }
 	
 spec: $(SPEC_OK)
 	
@@ -60,6 +65,7 @@ clean:
 	rm -Rf $(RUST_INSTALLDIR)
 	rm -Rf $(CRYSTAL_INSTALLDIR)
 	rm -Rf $(DIST_DIR)
+	rm -Rf .tmp
 	rm -f $(SPEC_OK)
 	cd src/cli && cargo clean
 	cd src/lib && cargo clean
