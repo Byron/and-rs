@@ -1,16 +1,18 @@
-## `anders` [![Build Status](https://travis-ci.org/Byron/and-rs.svg?branch=master)](https://travis-ci.org/Byron/and-rs) is 'anders' ...
+## `anders` is 'anders' [![Build Status](https://travis-ci.org/Byron/and-rs.svg?branch=master)](https://travis-ci.org/Byron/and-rs) ...
 `anders` is a tool to help with the typical android project development process, and essentially is a convenience wrapper around the lower level plumbing provided by the Android-SDK.
 
-#### How to ...
+### How to ...
 
 * Learn about what the build system can do
  + `make`
 * Run acceptance tests
  + `make spec`
 * Build the release-binary for the current platform
- + `make release-build`
+ + `make release`
 
 *Please note:* that make will install `rust` as project-local asset, provided you have no system installation. In the latter case, it will try to assure it is up-to-date by running `rustup|multirust update stable` just once.
+
+### Everything Else
 
 #### Project Goals
 * Fulfill uber technical assignment acceptance criteria

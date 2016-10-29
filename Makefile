@@ -1,10 +1,10 @@
-.PHONY: help clean spec init-osx release-build
+.PHONY: help clean spec init-osx release
 
 help:
 	$(info Make targets)
 	$(info ------------)
 	$(info spec          | run `anders` against a suite of specifications to assure it works)
-	$(info release-build | build a release binary of the anders tool)
+	$(info release       | build a release binary of the anders tool)
 	$(info init-osx      | WARNING: affects system: install android tools needed for basic android work)
 	$(info)
 
@@ -51,7 +51,7 @@ $(DIST_DIR)/anders: $(ANDERS_EXECUTABLE_RELEASE)
 	@cp $< $@
 	@echo "Release build ready at $@"
 	
-release-build: $(DIST_DIR)/anders
+release: $(DIST_DIR)/anders
 	
 init-osx:
 	brew install android-sdk
