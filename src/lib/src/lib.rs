@@ -97,8 +97,7 @@ fn strip_heredoc(mut here: &str) -> &str {
     &here[..here.rfind('\n').expect("LF and last line")]
 }
 
-fn manifest_content(ctx: &Context) -> String {
-    let content = strip_heredoc(include_str!("./assets/manifest.cr"));
+fn substitute_context(content: &str, ctx: &Context) -> String {
     let re: Regex = Regex::new(SUBTITUTION_KEY).expect("valid regex literal");
     re.replace_all(content, |c: &Captures| {
         match c.at(1).expect("single capture") {
@@ -109,8 +108,12 @@ fn manifest_content(ctx: &Context) -> String {
     })
 }
 
+fn manifest_content(ctx: &Context) -> String {
+    substitute_context(strip_heredoc(include_str!("./assets/manifest.cr")), ctx)
+}
+
 fn java_content(ctx: &Context) -> String {
-    "tbd".to_owned()
+    substitute_context(strip_heredoc(include_str!("./assets/main.cr")), ctx)
 }
 
 fn write_utf8_file(contents: &str, path: &Path) -> Result<(), Error> {
