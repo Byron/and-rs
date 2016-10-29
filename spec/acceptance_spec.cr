@@ -17,9 +17,10 @@ describe "`and" do
           process.should be_successful
           manifest = substitute_context.call MANIFEST
           main_java = substitute_context.call MAIN_JAVA
+          resource = substitute_context.call RESOURCE
           sandbox.should have_file "#{project}/AndroidManifest.xml", with_content manifest
           sandbox.should have_file "#{project}/src/#{package.gsub '.', '/'}/#{project}.java", with_content main_java
-          sandbox.should have_file "#{project}/res/values/strings.xml"
+          sandbox.should have_file "#{project}/res/values/strings.xml", with_content resource
         end
       end
     end

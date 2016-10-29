@@ -14,7 +14,7 @@ public class ${project} extends Activity {
 
     TextView textView = new TextView(this);
 
-    String text = getResources().getString(R.string.${project}Text);
+    String text = getResources().getString(R.string.helloText);
     textView.setText(text);
 
     setContentView(textView);

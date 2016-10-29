@@ -116,6 +116,10 @@ fn java_content(ctx: &Context) -> String {
     substitute_context(strip_heredoc(include_str!("./assets/main.cr")), ctx)
 }
 
+fn resource_content(ctx: &Context) -> String {
+    substitute_context(strip_heredoc(include_str!("./assets/resource.cr")), ctx)
+}
+
 fn write_utf8_file(contents: &str, path: &Path) -> Result<(), Error> {
     let mut f: File = try!(File::create(path).context(path));
     try!(f.write(contents.as_bytes()).context(PathToWriteTo(path)));
@@ -126,13 +130,17 @@ pub fn generate_application_scaffolding(ctx: &Context) -> Result<(), Error> {
     try!(ctx.verify());
     let app_path = |path: &str| Path::new(&ctx.application_name).join(path);
     let package_dir = app_path(&dotted_package_name_to_package_path(&ctx.package_path));
+    let resource_dir = app_path("res/values");
 
     try!(create_dir_all(&package_dir).context(package_dir.as_path()));
+    try!(create_dir_all(&resource_dir).context(resource_dir.as_path()));
     try!(write_utf8_file(&manifest_content(ctx), &app_path("AndroidManifest.xml")));
     try!(write_utf8_file(&java_content(ctx),
                          Path::new(&format!("{}/{}.java",
                                             package_dir.display(),
                                             ctx.application_name))));
+    try!(write_utf8_file(&resource_content(ctx),
+                         Path::new(&format!("{}/strings.xml", resource_dir.display()))));
     Ok(())
 }
 
