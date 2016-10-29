@@ -69,7 +69,7 @@ struct ProcessExpectation
   end
 
   def match(actual_value)
-    actual_value.result.exit_status == @expected_value
+    actual_value.result.exit_status == @expected_value.status
   end
 
   def failure_message(actual_value)
