@@ -71,9 +71,10 @@ struct DirectoryExpecation
       file #{@expected_value} did not have the correct content
       --- ACTUAL ---
       #{@actual_content}
-      
+      --- ACTUAL END ---
       --- EXPECTED ---
       #{@expected_content}
+      --- EXPECTED END ---
       DETAILS
     end
   end

@@ -3,7 +3,7 @@ extern crate quick_error;
 extern crate regex;
 
 use quick_error::ResultExt;
-use regex::Regex;
+use regex::{Captures, Regex};
 use std::error::Error as ErrorTrait;
 use std::path::{Path, PathBuf};
 use std::fmt;
@@ -13,6 +13,7 @@ use std::fs::{File, create_dir_all};
 struct PathToWriteTo<'a>(&'a Path);
 
 const VALID_PROJECT_NAME: &'static str = "^[0-9a-zA-Z]+$";
+const SUBTITUTION_KEY: &'static str = r#"\$\{(\w+)\}"#;
 
 quick_error!{
     #[derive(Debug)]
@@ -90,8 +91,21 @@ fn dotted_package_name_to_package_path(name: &str) -> String {
     Path::new("src").join(name.replace(".", "/")).to_string_lossy().into_owned()
 }
 
+fn strip_heredoc(mut here: &str) -> &str {
+    here = &here[here.find('\n').expect("LF and first line") + 1..];
+    &here[..here.rfind('\n').expect("LF and last line")]
+}
+
 fn manifest_content(ctx: &Context) -> String {
-    "manifest".to_owned()
+    let content = strip_heredoc(include_str!("./assets/manifest.cr"));
+    let re: Regex = Regex::new(SUBTITUTION_KEY).expect("valid regex literal");
+    re.replace_all(content, |c: &Captures| {
+        match c.at(1).expect("single capture") {
+            "package" => ctx.package_path.to_owned(),
+            "project" => ctx.application_name.to_owned(),
+            x => panic!("handle unknown variable: {}", x)
+        }
+    })
 }
 
 fn write_utf8_file(contents: &str, path: &Path) -> Result<(), Error> {
