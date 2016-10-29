@@ -4,5 +4,6 @@ version = "0.1.0"
 authors = ["Sebastian Thiel <byronimo@gmail.com>"]
 
 [dependencies]
-quick-error = "^ 1"
-regex = "^ 0.1"
+quick-error = "1"
+regex = "0.1"
+serde_json = "0.8"

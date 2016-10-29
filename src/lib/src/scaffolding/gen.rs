@@ -42,7 +42,7 @@ fn resource_content(ctx: &Context) -> String {
 }
 
 fn serialize(ctx: &Context) -> String {
-   "tbd".to_owned()
+    ctx.serialize()
 }
 
 fn write_utf8_file(contents: &str, path: &Path) -> Result<(), Error> {

@@ -1,6 +1,9 @@
 use std::error::Error;
 use std::fmt;
 use regex::Regex;
+use serde_json::{to_string_pretty, Value};
+use std::collections::BTreeMap;
+use std::iter::FromIterator;
 
 const VALID_PROJECT_NAME: &'static str = "^[0-9a-zA-Z]+$";
 
@@ -46,6 +49,19 @@ impl Context {
             });
         }
         Ok(())
+    }
+
+    pub fn serialize(&self) -> String {
+        let values = [("project".to_owned(),
+                       Value::String(self.application_name
+                          .to_owned())),
+                      ("package".to_owned(),
+                       Value::String(self.package_path
+                          .to_owned()))];
+        let values = Value::Object(BTreeMap::from_iter(values.iter()
+            .cloned()));
+        to_string_pretty(&values)
+            .expect("serialization to work and deal with all values we could have")
     }
 }
 
