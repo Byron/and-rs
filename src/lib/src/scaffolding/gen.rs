@@ -30,19 +30,19 @@ fn substitute_context(content: &str, ctx: &Context) -> String {
 }
 
 fn manifest_content(ctx: &Context) -> String {
-    substitute_context(strip_heredoc(include_str!("./scaffolding/assets/manifest.cr")), ctx)
+    substitute_context(strip_heredoc(include_str!("./assets/manifest.cr")), ctx)
 }
 
 fn java_content(ctx: &Context) -> String {
-    substitute_context(strip_heredoc(include_str!("./scaffolding/assets/main.cr")), ctx)
+    substitute_context(strip_heredoc(include_str!("./assets/main.cr")), ctx)
 }
 
 fn resource_content(ctx: &Context) -> String {
-    substitute_context(strip_heredoc(include_str!("./scaffolding/assets/resource.cr")), ctx)
+    substitute_context(strip_heredoc(include_str!("./assets/resource.cr")), ctx)
 }
 
 fn serialize(ctx: &Context) -> String {
-    "tbd".to_owned()
+   "tbd".to_owned()
 }
 
 fn write_utf8_file(contents: &str, path: &Path) -> Result<(), Error> {

@@ -30,7 +30,7 @@ impl fmt::Display for ContextVerificationError {
     }
 }
 
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Default)]
 pub struct Context {
     pub application_name: String,
     pub package_path: String,
