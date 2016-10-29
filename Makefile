@@ -1,9 +1,10 @@
-.PHONY: help clean spec init-osx release
+.PHONY: help clean spec test init-osx release
 
 help:
 	$(info Make targets)
 	$(info ------------)
 	$(info spec          | run `anders` against a suite of specifications to assure it works)
+	$(info test          | run unit tests of all rust code)
 	$(info release       | build a release binary of the anders tool)
 	$(info init-osx      | WARNING: affects system: install android tools needed for basic android work)
 	$(info)
@@ -50,6 +51,9 @@ $(SPEC_OK): $(ANDERS_EXECUTABLE_DEBUG) $(SPEC_EXECUTABLE)
 	EXECUTABLE=$(abspath $(ANDERS_EXECUTABLE_DEBUG)) $(SPEC_EXECUTABLE) && touch $(SPEC_OK) || { rm -f $(SPEC_OK) && exit 3; }
 	
 spec: $(SPEC_OK)
+	
+test:
+	cd src/lib && cargo test
 	
 $(DIST_DIR)/anders: $(ANDERS_EXECUTABLE_RELEASE)
 	@mkdir -p $(DIST_DIR)
