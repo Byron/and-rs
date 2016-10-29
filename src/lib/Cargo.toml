@@ -2,7 +2,18 @@
 name = "anders"
 version = "0.1.0"
 authors = ["Sebastian Thiel <byronimo@gmail.com>"]
+build = "src/build.rs"
 
 [dependencies]
-quick-error = "^ 1"
-regex = "^ 0.1"
+quick-error = "1"
+regex = "0.1"
+serde_json = "0.8"
+serde = "0.8"
+
+[features]
+default = ["with-serde-codegen"]
+with-serde-codegen = ["serde_codegen"]
+
+[build-dependencies]
+serde_codegen = { version = "^ 0.8", optional = true }
+
