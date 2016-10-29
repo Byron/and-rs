@@ -2,6 +2,7 @@ require "spec"
 require "io"
 require "file_utils"
 require "file"
+require "./assets"
 
 struct ExitCode
   getter status
@@ -36,15 +37,45 @@ def anders(runner, more_args)
 end
 
 struct DirectoryExpecation
-  def initialize(@expected_value : String)
+  enum Issue
+    ContentMismatch
+    Missing
+  end
+  
+  def initialize(@expected_value : String, @expected_content : String|Nil)
+    @issue = nil
+    @actual_content = ""
   end
   
   def match(actual_value : String)
-    File.exists? File.join actual_value, @expected_value
+    path = File.join actual_value, @expected_value
+    res = exists = File.exists? path
+    @issue = Issue::Missing unless exists
+    if exists
+      @expected_content.try do |expected_content|
+        @actual_content = File.read(path)
+        content_matches = @actual_content == expected_content
+        res = res && content_matches
+        @issue = Issue::ContentMismatch unless content_matches
+      end
+    end
+    res
   end
   
   def failure_message(actual_value)
-    "expected sandbox to contain: #{@expected_value}"
+    case @issue
+    when Issue::Missing
+      "expected sandbox to contain: #{@expected_value}"
+    when Issue::ContentMismatch
+      <<-DETAILS
+      file #{@expected_value} did not have the correct content
+      --- ACTUAL ---
+      #{@actual_content}
+      
+      --- EXPECTED ---
+      #{@expected_content}
+      DETAILS
+    end
   end
 
   def negative_failure_message(actual_value)
@@ -81,8 +112,12 @@ struct ProcessExpectation
   end
 end
 
-def have_file(file)
-  DirectoryExpecation.new file
+def have_file(file, content : Nil|String = nil)
+  DirectoryExpecation.new file, content
+end
+
+def with_content(content)
+  content
 end
 
 def exit_code(value)
