@@ -13,7 +13,7 @@ describe "`and" do
         package = "mypackage"
         sandboxed_anders new_, "#{project} --package #{package}" do |process, sandbox|
           process.should be_successful
-          sandbox.should have_file "AndroidManifest.xml"
+          sandbox.should have_file "#{project}/AndroidManifest.xml"
         end
       end
     end

@@ -41,7 +41,7 @@ fn new_app<'a, 'b>() -> App<'a, 'b> {
 
 fn handle(matches: ArgMatches) {
     if let Err(err) = match matches.subcommand() {
-        ("new", Some(args)) => anders::generate_application_scaffolding(to_context(args)),
+        ("new", Some(args)) => anders::generate_application_scaffolding(&to_context(args)),
         _ => {
             println!("{}", matches.usage());
             exit(4);
