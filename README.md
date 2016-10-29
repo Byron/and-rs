@@ -34,7 +34,7 @@
  + Otherwise I would have loved to use `crystal`, which to me is like a more simple Rust. However, it doesn't run on Windows yet.
 * `Crystal`
  + specs are good-looking and easy to write, and that comes out of the box.
- + it's like a more ergonomic, easier to use and learn Rust.
+ + it's like a more ergonomic, easier to use and learn Rust. [Meet crystal][meet-crystal].
  + I consider it acceptable to not be able to run acceptance tests on windows for now.
  
 #### Limitations
@@ -44,3 +44,4 @@
    time-consuming to install as it would build the entire code-base each time - binaries are not easily available without the need for sudo.
    
 [manual-android-platform-tools]: http://stackoverflow.com/questions/31374085/installing-adb-on-mac-os-x
+[meet-crystal]: https://www.youtube.com/watch?v=tAw5puTcGhA
