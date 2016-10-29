@@ -16,6 +16,7 @@ CRYSTAL=$(abspath $(CRYSTAL_INSTALLDIR)/bin/crystal)
 ANDERS_EXECUTABLE_DEBUG=src/cli/target/debug/anders
 ANDERS_EXECUTABLE_RELEASE=src/cli/target/release/anders
 RUST_SOURCE_FILES=$(shell find src -name '*.rs' -type f)
+CARGO_TOML_FILES=$(shell find src -name 'Cargo.toml' -type f)
 CRYSTAL_SOURCE_FILES=$(shell find spec -name '*.cr' -type f)
 SPEC_EXECUTABLE=.tmp/spec-runner
 SPEC_OK=spec/.ok
@@ -36,10 +37,11 @@ $(CARGO):
 	mkdir -p $(dir $@) && ln -s $(CARGO_IN_ENVIRONMENT) $@
 endif
 
-$(ANDERS_EXECUTABLE_RELEASE): $(RUST_SOURCE_FILES) $(CARGO)
+$(ANDERS_EXECUTABLE_RELEASE): $(RUST_SOURCE_FILES) $(CARGO) $(CARGO_TOML_FILES)
 	cd src/cli && $(CARGO) build --release
+	strip $@
 	
-$(ANDERS_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
+$(ANDERS_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO) $(CARGO_TOML_FILES)
 	cd src/cli && $(CARGO) build
 	
 $(SPEC_EXECUTABLE): $(CRYSTAL) $(CRYSTAL_SOURCE_FILES)

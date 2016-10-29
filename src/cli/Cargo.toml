@@ -11,3 +11,8 @@ clap = "^ 2"
 
 [dependencies.anders]
 path = '../lib'
+
+[profile.release]
+lto = true
+# Only on nightly, but reduces file-size by 230kb
+# opt-level = "z"
