@@ -8,9 +8,10 @@ describe "`and" do
     end
     
     context "with sandbox" do
+      project = "HelloWorld"
+      package = "mypackage"
+      
       it "successfully creates a project if the project name is valid" do
-        project = "HelloWorld"
-        package = "mypackage"
         sandboxed_anders new_, "#{project} --package #{package}" do |process, sandbox|
           process.should be_successful
           sandbox.should have_file "#{project}/AndroidManifest.xml"

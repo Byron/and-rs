@@ -4,6 +4,7 @@ extern crate quick_error;
 use quick_error::ResultExt;
 use std::error::Error as ErrorTrait;
 use std::path::{Path, PathBuf};
+use std::fmt;
 use std::io::{self, Write};
 use std::fs::{File, create_dir_all};
 
@@ -24,6 +25,11 @@ quick_error!{
             context(p: PathToWriteTo<'a>, err: io::Error) -> (p.0.to_path_buf(), err)
             cause(err)
         }
+        Context(err: ContextVerificationError) {
+            description("The provided context is invalid")
+            display("{}", err)
+            cause(err)
+        }
         Other(p: PathBuf, err: Box<ErrorTrait>) {
             description("Any other error that we don't necessarily know")
             display("An error occurred: {}", err)
@@ -32,9 +38,34 @@ quick_error!{
     }
 }
 
+#[derive(PartialEq, Eq, Debug)]
+pub enum ContextVerificationError {
+    InvalidProjectName {
+        name: String,
+    },
+}
+
+impl ErrorTrait for ContextVerificationError {
+    fn description(&self) -> &str {
+        "The context contained invalid values"
+    }
+}
+
+impl fmt::Display for ContextVerificationError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        "tbd".fmt(f)
+    }
+}
+
 pub struct Context {
     pub application_name: String,
-    pub package_path: String
+    pub package_path: String,
+}
+
+impl Context {
+    pub fn verify(&self) -> Result<(), ContextVerificationError> {
+        Ok(())
+    }
 }
 
 fn dotted_package_name_to_package_path(name: &str) -> String {
@@ -59,8 +90,27 @@ pub fn generate_application_scaffolding(ctx: &Context) -> Result<(), Error> {
     Ok(())
 }
 
+#[cfg(test)]
+mod context_verification {
+    use super::{ContextVerificationError, Context};
+
+    fn project_ctx(name: &str) -> Context {
+        Context {
+            application_name: name.to_owned(),
+            package_path: "package".to_owned(),
+        }
+    }
+
+    #[test]
+    fn it_rejects_dashes() {
+        let name = "Hello-World";
+        assert_eq!(project_ctx(name).verify(),
+                   Err(ContextVerificationError::InvalidProjectName { name: name.to_owned() }));
+    }
+}
 
 #[test]
 fn test_dotted_package_name_to_package_path() {
-    assert_eq!(dotted_package_name_to_package_path("hello.wonderful.world"), "src/hello/wonderful/world");
+    assert_eq!(dotted_package_name_to_package_path("hello.wonderful.world"),
+               "src/hello/wonderful/world");
 }
