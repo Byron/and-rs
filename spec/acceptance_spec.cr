@@ -18,9 +18,12 @@ describe "`and" do
           manifest = substitute_context.call MANIFEST
           main_java = substitute_context.call MAIN_JAVA
           resource = substitute_context.call RESOURCE
+          serialized_context = substitute_context.call CONTEXT_JSON
+          
           sandbox.should have_file "#{project}/AndroidManifest.xml", with_content manifest
           sandbox.should have_file "#{project}/src/#{package.gsub '.', '/'}/#{project}.java", with_content main_java
           sandbox.should have_file "#{project}/res/values/strings.xml", with_content resource
+          sandbox.should have_file "#{project}/anders.json", with_content serialized_context
         end
       end
     end

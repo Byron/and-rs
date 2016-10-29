@@ -41,6 +41,10 @@ fn resource_content(ctx: &Context) -> String {
     substitute_context(strip_heredoc(include_str!("./assets/resource.cr")), ctx)
 }
 
+fn serialize(ctx: &Context) -> String {
+   "tbd".to_owned()
+}
+
 fn write_utf8_file(contents: &str, path: &Path) -> Result<(), Error> {
     let mut f: File = try!(File::create(path).context(path));
     try!(f.write(contents.as_bytes()).context(PathToWriteTo(path)));
@@ -62,6 +66,7 @@ pub fn generate_application_scaffolding(ctx: &Context) -> Result<(), Error> {
                                             ctx.application_name))));
     try!(write_utf8_file(&resource_content(ctx),
                          Path::new(&format!("{}/strings.xml", resource_dir.display()))));
+    try!(write_utf8_file(&serialize(ctx), &app_path("anders.json")));
     Ok(())
 }
 

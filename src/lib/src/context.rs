@@ -4,7 +4,6 @@ use regex::Regex;
 
 const VALID_PROJECT_NAME: &'static str = "^[0-9a-zA-Z]+$";
 
-
 #[derive(PartialEq, Eq, Debug)]
 pub enum ContextVerificationError {
     InvalidProjectName {
@@ -31,6 +30,7 @@ impl fmt::Display for ContextVerificationError {
     }
 }
 
+#[derive(Debug, Default)]
 pub struct Context {
     pub application_name: String,
     pub package_path: String,
