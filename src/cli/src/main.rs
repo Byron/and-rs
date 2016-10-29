@@ -1,5 +1,5 @@
 extern crate clap;
-extern crate and;
+extern crate anders;
 
 fn main() {
     println!("Hello, world!");

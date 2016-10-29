@@ -31,7 +31,7 @@ def process_details (process)
   STRING
 end
 
-def and(runner, more_args)
+def anders(runner, more_args)
   runner.call more_args, nil
 end
 
@@ -52,7 +52,7 @@ struct DirectoryExpecation
   end
 end
 
-def sandboxed_and(runner, more_args, &block)
+def sandboxed_anders(runner, more_args, &block)
   tmpdir = `mktemp -d`
   tmpdir = tmpdir.strip
   process = runner.call more_args, tmpdir

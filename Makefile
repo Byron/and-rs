@@ -3,8 +3,8 @@
 help:
 	$(info Make targets)
 	$(info ------------)
-	$(info spec          | run `and` against a suite of specifications to assure it works)
-	$(info release-build | build a release binary of the and tool)
+	$(info spec          | run `anders` against a suite of specifications to assure it works)
+	$(info release-build | build a release binary of the anders tool)
 	$(info init-osx      | WARNING: affects system: install android tools needed for basic android work)
 	$(info)
 
@@ -12,8 +12,8 @@ include .make-config.env
 CARGO_IN_ENVIRONMENT := $(shell command -v cargo 2>&1)
 CARGO=$(abspath $(RUST_INSTALLDIR)/bin/cargo)
 CRYSTAL=$(abspath $(CRYSTAL_INSTALLDIR)/bin/crystal)
-AND_EXECUTABLE_DEBUG=src/cli/target/debug/and
-AND_EXECUTABLE_RELEASE=src/cli/target/release/and
+ANDERS_EXECUTABLE_DEBUG=src/cli/target/debug/anders
+ANDERS_EXECUTABLE_RELEASE=src/cli/target/release/anders
 RUST_SOURCE_FILES=$(shell find src -name '*.rs' -type f)
 CRYSTAL_SOURCE_FILES=$(shell find spec -name '*.cr' -type f)
 SPEC_OK=spec/.ok
@@ -34,24 +34,24 @@ $(CARGO):
 	mkdir -p $(dir $@) && ln -s $(CARGO_IN_ENVIRONMENT) $@
 endif
 
-$(AND_EXECUTABLE_RELEASE): $(RUST_SOURCE_FILES) $(CARGO)
+$(ANDERS_EXECUTABLE_RELEASE): $(RUST_SOURCE_FILES) $(CARGO)
 	cd src/cli && $(CARGO) build --release
 	
-$(AND_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
+$(ANDERS_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO)
 	cd src/cli && $(CARGO) build
 	
-$(SPEC_OK): $(AND_EXECUTABLE_DEBUG) $(CRYSTAL) $(CRYSTAL_SOURCE_FILES)
+$(SPEC_OK): $(ANDERS_EXECUTABLE_DEBUG) $(CRYSTAL) $(CRYSTAL_SOURCE_FILES)
 	@bin/check.sh all
-	EXECUTABLE=$(abspath $(AND_EXECUTABLE_DEBUG)) $(CRYSTAL) spec && touch $(SPEC_OK) || { rm -f $(SPEC_OK) && exit 3; }
+	EXECUTABLE=$(abspath $(ANDERS_EXECUTABLE_DEBUG)) $(CRYSTAL) spec && touch $(SPEC_OK) || { rm -f $(SPEC_OK) && exit 3; }
 	
 spec: $(SPEC_OK)
 	
-$(DIST_DIR)/and: $(AND_EXECUTABLE_RELEASE)
+$(DIST_DIR)/anders: $(ANDERS_EXECUTABLE_RELEASE)
 	@mkdir -p $(DIST_DIR)
 	@cp $< $@
 	@echo "Release build ready at $@"
 	
-release-build: $(DIST_DIR)/and
+release-build: $(DIST_DIR)/anders
 	
 init-osx:
 	brew install android-sdk

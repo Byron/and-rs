@@ -1,13 +1,13 @@
 [package]
-name = "and-cli"
+name = "anders-cli"
 version = "0.1.0"
 authors = ["Sebastian Thiel <byronimo@gmail.com>"]
 
 [[bin]]
-name = "and"
+name = "anders"
 
 [dependencies]
 clap = "^ 2"
 
-[dependencies.and]
+[dependencies.anders]
 path = '../lib'
