@@ -77,7 +77,8 @@ pub struct Context {
 
 impl Context {
     pub fn verify(&self) -> Result<(), ContextVerificationError> {
-        let re_valid_project_name = Regex::new(VALID_PROJECT_NAME).expect("this to be a valid regex");
+        let re_valid_project_name = Regex::new(VALID_PROJECT_NAME)
+            .expect("this to be a valid regex");
         if !re_valid_project_name.is_match(&self.application_name) {
             return Err(ContextVerificationError::InvalidProjectName {
                 name: self.application_name.to_owned(),
@@ -103,9 +104,13 @@ fn manifest_content(ctx: &Context) -> String {
         match c.at(1).expect("single capture") {
             "package" => ctx.package_path.to_owned(),
             "project" => ctx.application_name.to_owned(),
-            x => panic!("handle unknown variable: {}", x)
+            x => panic!("handle unknown variable: {}", x),
         }
     })
+}
+
+fn java_content(ctx: &Context) -> String {
+    "tbd".to_owned()
 }
 
 fn write_utf8_file(contents: &str, path: &Path) -> Result<(), Error> {
@@ -118,8 +123,13 @@ pub fn generate_application_scaffolding(ctx: &Context) -> Result<(), Error> {
     try!(ctx.verify());
     let app_path = |path: &str| Path::new(&ctx.application_name).join(path);
     let package_dir = app_path(&dotted_package_name_to_package_path(&ctx.package_path));
+
     try!(create_dir_all(&package_dir).context(package_dir.as_path()));
     try!(write_utf8_file(&manifest_content(ctx), &app_path("AndroidManifest.xml")));
+    try!(write_utf8_file(&java_content(ctx),
+                         Path::new(&format!("{}/{}.java",
+                                            package_dir.display(),
+                                            ctx.application_name))));
     Ok(())
 }
 
