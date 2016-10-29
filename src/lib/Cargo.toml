@@ -5,3 +5,4 @@ authors = ["Sebastian Thiel <byronimo@gmail.com>"]
 
 [dependencies]
 quick-error = "^ 1"
+regex = "^ 0.1"

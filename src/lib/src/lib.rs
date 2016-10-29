@@ -1,7 +1,9 @@
 #[macro_use]
 extern crate quick_error;
+extern crate regex;
 
 use quick_error::ResultExt;
+use regex::Regex;
 use std::error::Error as ErrorTrait;
 use std::path::{Path, PathBuf};
 use std::fmt;
@@ -9,6 +11,8 @@ use std::io::{self, Write};
 use std::fs::{File, create_dir_all};
 
 struct PathToWriteTo<'a>(&'a Path);
+
+const VALID_PROJECT_NAME: &'static str = "^[0-9a-zA-Z]+$";
 
 quick_error!{
     #[derive(Debug)]
@@ -28,6 +32,7 @@ quick_error!{
         Context(err: ContextVerificationError) {
             description("The provided context is invalid")
             display("{}", err)
+            from()
             cause(err)
         }
         Other(p: PathBuf, err: Box<ErrorTrait>) {
@@ -53,7 +58,14 @@ impl ErrorTrait for ContextVerificationError {
 
 impl fmt::Display for ContextVerificationError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        "tbd".fmt(f)
+        match *self {
+            ContextVerificationError::InvalidProjectName { ref name } => {
+                write!(f,
+                       "Project name '{}' is invalid as it does not match '{}'",
+                       name,
+                       VALID_PROJECT_NAME)
+            }
+        }
     }
 }
 
@@ -64,6 +76,12 @@ pub struct Context {
 
 impl Context {
     pub fn verify(&self) -> Result<(), ContextVerificationError> {
+        let re_valid_project_name = Regex::new(VALID_PROJECT_NAME).expect("this to be a valid regex");
+        if !re_valid_project_name.is_match(&self.application_name) {
+            return Err(ContextVerificationError::InvalidProjectName {
+                name: self.application_name.to_owned(),
+            });
+        }
         Ok(())
     }
 }
@@ -83,6 +101,7 @@ fn write_utf8_file(contents: &str, path: &Path) -> Result<(), Error> {
 }
 
 pub fn generate_application_scaffolding(ctx: &Context) -> Result<(), Error> {
+    try!(ctx.verify());
     let app_path = |path: &str| Path::new(&ctx.application_name).join(path);
     let package_dir = app_path(&dotted_package_name_to_package_path(&ctx.package_path));
     try!(create_dir_all(&package_dir).context(package_dir.as_path()));
@@ -91,7 +110,7 @@ pub fn generate_application_scaffolding(ctx: &Context) -> Result<(), Error> {
 }
 
 #[cfg(test)]
-mod context_verification {
+mod context_verification_project_name {
     use super::{ContextVerificationError, Context};
 
     fn project_ctx(name: &str) -> Context {
@@ -99,6 +118,19 @@ mod context_verification {
             application_name: name.to_owned(),
             package_path: "package".to_owned(),
         }
+    }
+
+    #[test]
+    fn it_likes_latin_characters() {
+        let name = "5HelloWorld123";
+        assert_eq!(project_ctx(name).verify(), Ok(()));
+    }
+
+    #[test]
+    fn it_rejects_non_latin_literals() {
+        let name = "$1hi!";
+        assert_eq!(project_ctx(name).verify(),
+                   Err(ContextVerificationError::InvalidProjectName { name: name.to_owned() }));
     }
 
     #[test]

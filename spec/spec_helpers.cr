@@ -3,7 +3,7 @@ require "io"
 require "file_utils"
 require "file"
 
-struct ExitStatus
+struct ExitCode
   getter status
   def initialize(@status : Int32)
   end
@@ -65,15 +65,15 @@ def sandboxed_anders(runner, more_args, &block)
 end
 
 struct ProcessExpectation
-  def initialize(@expected_value : ExitStatus)
+  def initialize(@expected_value : ExitCode)
   end
 
   def match(actual_value)
-    actual_value.result.exit_status == @expected_value.status
+    actual_value.result.exit_code == @expected_value.status
   end
 
   def failure_message(actual_value)
-    "expected process to exit with: #{@expected_value.status} \n     got: #{actual_value.result.exit_status} #{process_details actual_value}"
+    "expected process to exit with: #{@expected_value.status} \n     got: #{actual_value.result.exit_code} #{process_details actual_value}"
   end
 
   def negative_failure_message(actual_value)
@@ -85,8 +85,8 @@ def have_file(file)
   DirectoryExpecation.new file
 end
 
-def exit_status(value)
-  ExitStatus.new value
+def exit_code(value)
+  ExitCode.new value
 end
 
 def be_failing_with(exit_code)
@@ -94,7 +94,7 @@ def be_failing_with(exit_code)
 end
 
 def be_successful()
-  ProcessExpectation.new ExitStatus.new 0
+  ProcessExpectation.new ExitCode.new 0
 end
 
 def run_with(args)

@@ -4,7 +4,7 @@ describe "`and" do
   describe "new`" do
     new_ = run_with "new"
     it "does not accept non-ascii characters and dashes as project name" do
-      (anders new_, "hello-world$!123 --package=bar").should be_failing_with exit_status 3
+      (anders new_, "hello-world$!123 --package=bar").should be_failing_with exit_code 3
     end
     
     context "with sandbox" do

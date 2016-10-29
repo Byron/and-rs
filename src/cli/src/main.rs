@@ -8,7 +8,7 @@ use clap::{App, Arg, SubCommand, ArgMatches};
 fn die_with<E>(err: E)
     where E: std::error::Error
 {
-    write!(stderr(), "{}", err).ok();
+    write!(stderr(), "{}\n", err).ok();
     exit(3);
 }
 
