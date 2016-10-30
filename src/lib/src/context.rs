@@ -5,13 +5,17 @@ use std::iter::FromIterator;
 use std::io::Read;
 
 const VALID_PROJECT_NAME: &'static str = "^[0-9a-zA-Z]+$";
+const VALID_TARGET_NAME: &'static str = "^[0-9a-zA-Z_-]+$";
 
 quick_error! {
     #[derive(PartialEq, Eq, Debug)]
     pub enum ContextVerificationError {
-        InvalidProjectName {
-            name: String,
-        } {
+        InvalidTargetName (name: String) {
+            description("The target name is invalid")
+            display("Target name '{}' is invalid as it does not match '{}'",
+                    name, VALID_TARGET_NAME)
+        }
+        InvalidProjectName (name: String) {
             description("The project name is invalid")
             display("Project name '{}' is invalid as it does not match '{}'",
                     name, VALID_PROJECT_NAME)
@@ -47,16 +51,20 @@ quick_error! {
 pub struct Context {
     pub application_name: String,
     pub package_path: String,
+    pub target: String,
 }
 
 impl Context {
     pub fn verify(&self) -> Result<(), ContextVerificationError> {
+        let re_valid_target_name = Regex::new(VALID_TARGET_NAME).expect("this to be a valid regex");
         let re_valid_project_name = Regex::new(VALID_PROJECT_NAME)
             .expect("this to be a valid regex");
         if !re_valid_project_name.is_match(&self.application_name) {
-            return Err(ContextVerificationError::InvalidProjectName {
-                name: self.application_name.to_owned(),
-            });
+            return Err(ContextVerificationError::InvalidProjectName(self.application_name
+                .to_owned()));
+        }
+        if !re_valid_target_name.is_match(&self.target) {
+            return Err(ContextVerificationError::InvalidTargetName(self.target.to_owned()));
         }
         Ok(())
     }
@@ -82,6 +90,7 @@ impl Context {
         Ok(Context {
             application_name: try!(get("project")),
             package_path: try!(get("package")),
+            target: try!(get("target")),
         })
     }
 
@@ -91,6 +100,9 @@ impl Context {
                           .to_owned())),
                       ("package".to_owned(),
                        Value::String(self.package_path
+                          .to_owned())),
+                      ("target".to_owned(),
+                       Value::String(self.target
                           .to_owned()))];
         let values = Value::Object(BTreeMap::from_iter(values.iter()
             .cloned()));
@@ -110,6 +122,7 @@ mod context_serde {
         let ctx = Context {
             application_name: "name".to_owned(),
             package_path: "package".to_owned(),
+            target: "target".to_owned(),
         };
 
         assert_eq!(ctx,
@@ -118,33 +131,67 @@ mod context_serde {
 }
 
 #[cfg(test)]
+mod context_verification_target {
+    use super::{ContextVerificationError, Context};
+
+    fn ctx_from(name: &str) -> Context {
+        Context {
+            target: name.to_owned(),
+            application_name: "name".to_owned(),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn it_likes_latin_characters_and_dashes() {
+        let name = "android-25";
+        assert_eq!(ctx_from(name).verify(), Ok(()));
+    }
+
+    #[test]
+    fn it_rejects_non_latin_literals() {
+        let name = "$1hi!";
+        assert_eq!(ctx_from(name).verify(),
+                   Err(ContextVerificationError::InvalidTargetName(name.to_owned())));
+    }
+
+    #[test]
+    fn it_rejects_spaces() {
+        let name = "hello android";
+        assert_eq!(ctx_from(name).verify(),
+                   Err(ContextVerificationError::InvalidTargetName(name.to_owned())));
+    }
+}
+
+#[cfg(test)]
 mod context_verification_project_name {
     use super::{ContextVerificationError, Context};
 
-    fn project_ctx(name: &str) -> Context {
+    fn ctx_from(name: &str) -> Context {
         Context {
             application_name: name.to_owned(),
-            package_path: "package".to_owned(),
+            target: "target".to_owned(),
+            ..Default::default()
         }
     }
 
     #[test]
     fn it_likes_latin_characters() {
         let name = "5HelloWorld123";
-        assert_eq!(project_ctx(name).verify(), Ok(()));
+        assert_eq!(ctx_from(name).verify(), Ok(()));
     }
 
     #[test]
     fn it_rejects_non_latin_literals() {
         let name = "$1hi!";
-        assert_eq!(project_ctx(name).verify(),
-                   Err(ContextVerificationError::InvalidProjectName { name: name.to_owned() }));
+        assert_eq!(ctx_from(name).verify(),
+                   Err(ContextVerificationError::InvalidProjectName(name.to_owned())));
     }
 
     #[test]
     fn it_rejects_dashes() {
         let name = "Hello-World";
-        assert_eq!(project_ctx(name).verify(),
-                   Err(ContextVerificationError::InvalidProjectName { name: name.to_owned() }));
+        assert_eq!(ctx_from(name).verify(),
+                   Err(ContextVerificationError::InvalidProjectName(name.to_owned())));
     }
 }
