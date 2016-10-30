@@ -31,8 +31,12 @@ pub fn find_executable(root: &Path, name: &str) -> Result<PathBuf, FindError> {
     for entry in WalkDir::new(root) {
         match entry {
             Ok(entry) => {
-                if let Some(file_name) = entry.path().file_name().map(OsStr::to_str) {
-                    return Ok(entry.path().to_owned());
+                match entry.path()
+                    .file_name()
+                    .map(OsStr::to_str)
+                    .expect("conversion to OsStr to work") {
+                    Some(file_name) if file_name == name => return Ok(entry.path().to_owned()),
+                    Some(_) | None => continue,
                 }
             }
             Err(err) => {
