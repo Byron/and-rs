@@ -37,13 +37,17 @@ def anders(runner, more_args)
   runner.call more_args, nil
 end
 
+def package_dir(package)
+  "src/#{package.gsub '.', '/'}"
+end
+
 struct DirectoryExpectation
   enum Issue
     ContentMismatch
     Missing
   end
   
-  def initialize(@expected_value : String, @expected_content : String|Nil)
+  def initialize(@expected_value : String, @expected_content : String|Nil = nil)
     @issue = nil
     @actual_content = ""
   end
@@ -122,6 +126,11 @@ end
 def have_file(file, content : Nil|String = nil)
   DirectoryExpectation.new file, content
 end
+
+def have_dir(file)
+  DirectoryExpectation.new file
+end
+
 
 def with_content(content)
   content

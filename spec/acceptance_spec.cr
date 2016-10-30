@@ -1,9 +1,9 @@
 require "./spec_helpers.cr"
-
+  
 describe "`and" do
   project = "HelloWorld"
   package = "com.company.mypackage"
-
+  
   describe "new`" do
     new_ = run_with "new"
     it "does not accept non-ascii characters and dashes as project name" do
@@ -21,8 +21,9 @@ describe "`and" do
           resource = substitute_context.call RESOURCE
           serialized_context = substitute_context.call CONTEXT_JSON
           
+          sandbox.should have_dir "#{project}/obj"
           sandbox.should have_file "#{project}/AndroidManifest.xml", with_content manifest
-          sandbox.should have_file "#{project}/src/#{package.gsub '.', '/'}/#{project}.java", with_content main_java
+          sandbox.should have_file "#{project}/#{package_dir package}/#{project}.java", with_content main_java
           sandbox.should have_file "#{project}/res/values/strings.xml", with_content resource
           sandbox.should have_file "#{project}/anders.json", with_content serialized_context
         end
@@ -37,6 +38,7 @@ describe "`and" do
       it "should compile a project and generate bytecode and resources" do
         sandboxed_anders with_project_and_then(compile, **context), "--context=#{project}/anders.json" do |process, sandbox|
           process.should be_successful
+          sandbox.should have_file "#{project}/#{package_dir package}/R.jar"
         end
       end
     end

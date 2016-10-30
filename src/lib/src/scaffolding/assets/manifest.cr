@@ -11,7 +11,7 @@ MANIFEST=<<-XML
 
     <uses-sdk android:minSdkVersion="2"/>
 
-    <application android:icon="@drawable/${project}Logo"
+    <application android:icon="@android:drawable/ic_dialog_email"
                  android:label="@string/${project}">
         <activity android:name="${package}.${project}"
                   android:label="@string/${project}">

@@ -56,9 +56,11 @@ pub fn generate_application_scaffolding(ctx: &Context) -> Result<(), Error> {
     let app_path = |path: &str| Path::new(&ctx.application_name).join(path);
     let package_dir = app_path(&dotted_package_name_to_package_path(&ctx.package_path));
     let resource_dir = app_path("res/values");
+    let obj_dir = app_path("obj");
 
     try!(create_dir_all(&package_dir).context(package_dir.as_path()));
     try!(create_dir_all(&resource_dir).context(resource_dir.as_path()));
+    try!(create_dir_all(&obj_dir).context(obj_dir.as_path()));
     try!(write_utf8_file(&manifest_content(ctx), &app_path("AndroidManifest.xml")));
     try!(write_utf8_file(&java_content(ctx),
                          Path::new(&format!("{}/{}.java",
