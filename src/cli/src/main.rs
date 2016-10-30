@@ -4,6 +4,7 @@ extern crate anders;
 use std::process::exit;
 use std::io::{Write, stderr};
 use clap::{App, Arg, SubCommand, ArgMatches};
+use anders::scaffolding::generate_application_scaffolding;
 
 fn die_with<E>(err: E)
     where E: std::error::Error
@@ -52,7 +53,7 @@ fn new_app<'a, 'b>() -> App<'a, 'b> {
 
 fn handle(matches: ArgMatches) {
     if let Err(err) = match matches.subcommand() {
-        ("new", Some(args)) => anders::generate_application_scaffolding(&to_context(args)),
+        ("new", Some(args)) => generate_application_scaffolding(&to_context(args)),
         ("compile", Some(args)) => Ok(()),
         _ => {
             println!("{}", matches.usage());
