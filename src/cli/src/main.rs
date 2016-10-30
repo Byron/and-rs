@@ -3,7 +3,9 @@ extern crate quick_error;
 extern crate clap;
 extern crate anders;
 
+use quick_error::ResultExt;
 use std::process::exit;
+use std::fs::File;
 use std::io::{self, Write, stderr};
 use clap::{App, Arg, SubCommand, ArgMatches};
 use anders::scaffolding::generate_application_scaffolding;
@@ -18,6 +20,10 @@ quick_error! {
             display("Failed to read context from '{}'", p.display())
             context(p: & 'a Path, err: io::Error) -> (p.to_path_buf(), err)
             cause(err)
+        }
+        ContextSchema(p: PathBuf, err: anders::ContextSchemaError) {
+            description("The context file had an invalid format")
+            display("Failed to interpret schema of context at '{}'", p.display())
         }
     }
 }
@@ -35,7 +41,10 @@ fn ok_or_exit<T, E>(res: Result<T, E>) -> T
 }
 
 fn context_from<'a>(args: &ArgMatches<'a>) -> Result<anders::Context, Error> {
-    Ok(anders::Context { ..Default::default() })
+    let context_path = Path::new(args.value_of("context").expect("clap to work"));
+    let mut file = try!(File::open(context_path).context(context_path));
+    anders::Context::deserialize(&mut file)
+        .map_err(|err| Error::ContextSchema(context_path.to_owned(), err))
 }
 
 fn to_context<'a>(args: &ArgMatches<'a>) -> anders::Context {
