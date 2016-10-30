@@ -37,12 +37,23 @@ fn new_app<'a, 'b>() -> App<'a, 'b> {
                 .long("package")
                 .required(true)
                 .takes_value(true)
-                .help("name of the ")))
+                .help("name of the java package, e.g. com.company.package")))
+        .subcommand(SubCommand::with_name("compile")
+            .about("compile program files and resources")
+            .version("0.1")
+            .arg(Arg::with_name("context")
+                .short("c")
+                .long("context")
+                .required(false)
+                .takes_value(true)
+                .default_value("./anders.json")
+                .help("path to the file created after executing new.")))
 }
 
 fn handle(matches: ArgMatches) {
     if let Err(err) = match matches.subcommand() {
         ("new", Some(args)) => anders::generate_application_scaffolding(&to_context(args)),
+        ("compile", Some(args)) => Ok(()),
         _ => {
             println!("{}", matches.usage());
             exit(4);
