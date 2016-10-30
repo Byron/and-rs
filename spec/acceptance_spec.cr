@@ -34,7 +34,7 @@ describe "`and" do
     context = {project: project, package: package}
     describe "compile`" do
       it "should compile a project and generate bytecode and resources" do
-        sandboxed_anders with_project_and_then(compile, context), "arguments" do |process, sandbox|
+        sandboxed_anders with_project_and_then(compile, **context), "arguments" do |process, sandbox|
           process.should be_successful
         end
       end

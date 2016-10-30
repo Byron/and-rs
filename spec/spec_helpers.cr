@@ -11,21 +11,22 @@ struct ExitCode
 end
 
 struct ExecutionResult
-  getter result, output, error
+  getter result, output, error, invocation
   property sandbox_dir
-  def initialize(@result : Process::Status, @output : MemoryIO, @error : MemoryIO, @sandbox_dir : String|Nil)
+  def initialize(@result : Process::Status, @output : MemoryIO, @error : MemoryIO, @sandbox_dir : String|Nil, @invocation : String)
   end
 end
 
 def process_details (process)
   <<-STRING
   
-  
   DETAILS:
-    --- STDOUT ---
+    >>> STDOUT
     #{process.output.to_s}
-    --- STDERR ---
+    <<< STDOUT
+    >>> STDERR
     #{process.error.to_s}
+    <<< STDERR
     #{if process.sandbox_dir
     "Program sandbox accessible at #{process.sandbox_dir}"
       end}
@@ -36,7 +37,7 @@ def anders(runner, more_args)
   runner.call more_args, nil
 end
 
-struct DirectoryExpecation
+struct DirectoryExpectation
   enum Issue
     ContentMismatch
     Missing
@@ -69,12 +70,12 @@ struct DirectoryExpecation
     when Issue::ContentMismatch
       <<-DETAILS
       file #{@expected_value} did not have the correct content
-      --- ACTUAL ---
+      >>> ACTUAL
       #{@actual_content}
-      --- ACTUAL END ---
-      --- EXPECTED ---
+      <<< ACTUAL
+      >>> EXPECTED
       #{@expected_content}
-      --- EXPECTED END ---
+      <<< EXPECTED
       DETAILS
     end
   end
@@ -105,7 +106,12 @@ struct ProcessExpectation
   end
 
   def failure_message(actual_value)
-    "expected process to exit with: #{@expected_value.status} \n     got: #{actual_value.result.exit_code} #{process_details actual_value}"
+    <<-DESCRIPTION
+    CMD: #{actual_value.invocation}
+    expected process to exit with: #{@expected_value.status}
+         got: #{actual_value.result.exit_code}
+         #{process_details actual_value}
+    DESCRIPTION
   end
 
   def negative_failure_message(actual_value)
@@ -114,7 +120,7 @@ struct ProcessExpectation
 end
 
 def have_file(file, content : Nil|String = nil)
-  DirectoryExpecation.new file, content
+  DirectoryExpectation.new file, content
 end
 
 def with_content(content)
@@ -137,14 +143,18 @@ def run_with(args)
   ->(more_args : String, chdir : String|Nil) {
     output = MemoryIO.new()
     error = MemoryIO.new()
+    arguments = "#{args} #{more_args}"
+    program = ENV["EXECUTABLE"]
+    
     ExecutionResult.new(
-    result: Process.run(
-        command: ENV["EXECUTABLE"], 
+      result: Process.run(
+        command: program, 
         shell: false,
-        args: "#{args} #{more_args}".split(' '),
+        args: arguments.split(' '),
         output: output, error: error, input: false,
         chdir: chdir
       ),
+      invocation: "#{program} #{arguments}",
       output: output,
       error: error,
       sandbox_dir: nil
@@ -152,10 +162,10 @@ def run_with(args)
   }
 end
 
-def with_project_and_then(runner, context)
+def with_project_and_then(runner, project, package)
   anders_new = run_with("new")
   ->(more_args : String, chdir : String|Nil) {
-    process = anders_new.call "#{context[:project]} --package=#{:package}", chdir
+    process = anders_new.call "#{project} --package=#{package}", chdir
     return process unless process.result.success?
     runner.call more_args, chdir
   }
