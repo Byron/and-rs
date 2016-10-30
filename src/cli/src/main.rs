@@ -10,8 +10,24 @@ use std::io::{self, Write, stderr};
 use clap::{App, Arg, SubCommand, ArgMatches};
 use anders::scaffolding::generate_application_scaffolding;
 use anders::compile::compile_application;
+use std::error::Error as StdError;
+use std::fmt::{self, Formatter, Display};
 
 use std::path::{Path, PathBuf};
+
+struct WithCauses<'a> (&'a StdError);
+
+impl<'a> Display for WithCauses<'a> {
+    fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+        try!(write!(fmt, "{}", self.0));
+        let mut cursor = self.0;
+        while let Some(err) = cursor.cause() {
+            try!(write!(fmt, "\ncaused by: \n\n{}", err));
+            cursor = err;
+        }
+        Ok(())
+    }
+}
 
 quick_error! {
     #[derive(Debug)]
@@ -24,7 +40,7 @@ quick_error! {
         }
         ContextSchema(p: PathBuf, err: anders::ContextSchemaError) {
             description("The context file had an invalid format")
-            display("Failed to interpret schema of context at '{}': {:?}", p.display(), err)
+            display("Failed to interpret schema of context at '{}'", p.display())
         }
     }
 }
@@ -35,8 +51,7 @@ fn ok_or_exit<T, E>(res: Result<T, E>) -> T
     match res {
         Ok(res) => res,
         Err(err) => {
-            write!(stderr(), "{}\n", err).ok();
-            write!(stderr(), "{:?}\n", err).ok();
+            write!(stderr(), "{}\n", WithCauses(&err)).ok();
             exit(3);
         }
     }
