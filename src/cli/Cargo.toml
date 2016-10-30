@@ -8,9 +8,8 @@ name = "anders"
 
 [dependencies]
 clap = "^ 2"
-
-[dependencies.anders]
-path = '../lib'
+quick-error = "1"
+anders = { path = "../lib" }
 
 [profile.release]
 lto = true

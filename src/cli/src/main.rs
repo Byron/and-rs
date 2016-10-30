@@ -1,10 +1,26 @@
+#[macro_use]
+extern crate quick_error;
 extern crate clap;
 extern crate anders;
 
 use std::process::exit;
-use std::io::{Write, stderr};
+use std::io::{self, Write, stderr};
 use clap::{App, Arg, SubCommand, ArgMatches};
 use anders::scaffolding::generate_application_scaffolding;
+
+use std::path::{Path, PathBuf};
+
+quick_error! {
+    #[derive(Debug)]
+    pub enum Error {
+        ContextReadingIo(p: PathBuf, err: io::Error) {
+            description("The context file could not be read")
+            display("Failed to read context from '{}'", p.display())
+            context(p: & 'a Path, err: io::Error) -> (p.to_path_buf(), err)
+            cause(err)
+        }
+    }
+}
 
 fn ok_or_exit<T, E>(res: Result<T, E>) -> T
     where E: std::error::Error
@@ -16,6 +32,10 @@ fn ok_or_exit<T, E>(res: Result<T, E>) -> T
             exit(3);
         }
     }
+}
+
+fn context_from<'a>(args: &ArgMatches<'a>) -> Result<anders::Context, Error> {
+    Ok(anders::Context { ..Default::default() })
 }
 
 fn to_context<'a>(args: &ArgMatches<'a>) -> anders::Context {
@@ -61,7 +81,9 @@ fn handle(matches: ArgMatches) {
         ("new", Some(args)) => {
             ok_or_exit(generate_application_scaffolding(&to_context(args)));
         }
-        ("compile", Some(args)) => {}
+        ("compile", Some(args)) => {
+            let ctx = ok_or_exit(context_from(args));
+        }
         _ => {
             println!("{}", matches.usage());
             exit(4);

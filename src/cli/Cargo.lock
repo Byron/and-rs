@@ -4,6 +4,7 @@ version = "0.1.0"
 dependencies = [
  "anders 0.1.0",
  "clap 2.16.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quick-error 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
