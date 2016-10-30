@@ -38,10 +38,14 @@
  + I consider it acceptable to not be able to run acceptance tests on windows for now.
  
 #### Limitations
+##### Development
  * This project was never tested on Windows, but _should_ work if run in an environment supporting `make` and `bash`.
  * Only `init-osx` is provided to help developer to get started. Other platforms are out of scope. It would be possible to install them only locally, using the [installation steps provided here][manual-android-platform-tools]
  * `crystal` currently does not work on windows, which limits development/running the specs to non-windows developers. This choice was made to get rid of Ruby, which was too
    time-consuming to install as it would build the entire code-base each time - binaries are not easily available without the need for sudo.
    
+##### `anders` program
+* Even though errors are kept in all detail with a chain of their causes, said chain of causes is currently not pretty-printed.
+
 [manual-android-platform-tools]: http://stackoverflow.com/questions/31374085/installing-adb-on-mac-os-x
 [meet-crystal]: https://www.youtube.com/watch?v=tAw5puTcGhA

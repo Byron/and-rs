@@ -36,6 +36,7 @@ fn ok_or_exit<T, E>(res: Result<T, E>) -> T
         Ok(res) => res,
         Err(err) => {
             write!(stderr(), "{}\n", err).ok();
+            write!(stderr(), "{:?}\n", err).ok();
             exit(3);
         }
     }
