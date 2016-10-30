@@ -6,11 +6,16 @@ use std::io::{Write, stderr};
 use clap::{App, Arg, SubCommand, ArgMatches};
 use anders::scaffolding::generate_application_scaffolding;
 
-fn die_with<E>(err: E)
+fn ok_or_exit<T, E>(res: Result<T, E>) -> T
     where E: std::error::Error
 {
-    write!(stderr(), "{}\n", err).ok();
-    exit(3);
+    match res {
+        Ok(res) => res,
+        Err(err) => {
+            write!(stderr(), "{}\n", err).ok();
+            exit(3);
+        }
+    }
 }
 
 fn to_context<'a>(args: &ArgMatches<'a>) -> anders::Context {
@@ -52,15 +57,15 @@ fn new_app<'a, 'b>() -> App<'a, 'b> {
 }
 
 fn handle(matches: ArgMatches) {
-    if let Err(err) = match matches.subcommand() {
-        ("new", Some(args)) => generate_application_scaffolding(&to_context(args)),
-        ("compile", Some(args)) => Ok(()),
+    match matches.subcommand() {
+        ("new", Some(args)) => {
+            ok_or_exit(generate_application_scaffolding(&to_context(args)));
+        }
+        ("compile", Some(args)) => {}
         _ => {
             println!("{}", matches.usage());
             exit(4);
         }
-    } {
-        die_with(err);
     }
 }
 
