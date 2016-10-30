@@ -7,3 +7,4 @@ authors = ["Sebastian Thiel <byronimo@gmail.com>"]
 quick-error = "1"
 regex = "0.1"
 serde_json = "0.8"
+walkdir = "1"
