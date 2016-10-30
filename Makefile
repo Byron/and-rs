@@ -54,8 +54,8 @@ $(SPEC_OK): $(ANDERS_EXECUTABLE_DEBUG) $(SPEC_EXECUTABLE)
 	
 spec: $(SPEC_OK)
 	
-test:
-	cd src/lib && cargo test
+test: $(CARGO)
+	cd src/lib && $(CARGO) test
 	
 $(DIST_DIR)/anders: $(ANDERS_EXECUTABLE_RELEASE)
 	@mkdir -p $(DIST_DIR)

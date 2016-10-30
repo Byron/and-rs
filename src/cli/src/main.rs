@@ -72,7 +72,7 @@ fn to_context<'a>(args: &ArgMatches<'a>) -> anders::Context {
     anders::Context {
         application_name: args.value_of("app-name").expect("clap to do the checking").to_owned(),
         package_path: args.value_of("package").expect("clap to do the checking").to_owned(),
-        target: args.value_of("target").expect("clap to do the checking").to_owned()
+        target: args.value_of("target").expect("clap to do the checking").to_owned(),
     }
 }
 
