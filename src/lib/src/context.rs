@@ -1,5 +1,3 @@
-use std::error::Error;
-use std::fmt;
 use regex::Regex;
 use serde_json::{Error as JsonError, from_reader, to_string_pretty, Value};
 use std::collections::BTreeMap;
@@ -8,41 +6,39 @@ use std::io::Read;
 
 const VALID_PROJECT_NAME: &'static str = "^[0-9a-zA-Z]+$";
 
-#[derive(PartialEq, Eq, Debug)]
-pub enum ContextVerificationError {
-    InvalidProjectName {
-        name: String,
-    },
-}
-
-#[derive(Debug)]
-pub enum ContextSchemaError {
-    Type {
-        want: &'static str,
-        field: String,
-        got: Value,
-    },
-    MissingField {
-        name: String,
-    },
-    Syntax(JsonError),
-}
-
-impl Error for ContextVerificationError {
-    fn description(&self) -> &str {
-        "The context contained invalid values"
+quick_error! {
+    #[derive(PartialEq, Eq, Debug)]
+    pub enum ContextVerificationError {
+        InvalidProjectName {
+            name: String,
+        } {
+            description("The project name is invalid")
+            display("Project name '{}' is invalid as it does not match '{}'",
+                    name, VALID_PROJECT_NAME)
+        }
     }
 }
 
-impl fmt::Display for ContextVerificationError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            ContextVerificationError::InvalidProjectName { ref name } => {
-                write!(f,
-                       "Project name '{}' is invalid as it does not match '{}'",
-                       name,
-                       VALID_PROJECT_NAME)
-            }
+quick_error! {
+    #[derive(Debug)]
+    pub enum ContextSchemaError {
+        Type {
+            want: &'static str,
+            field: String,
+            got: Value,
+        } {
+            description("The type of a field does not match the expected type")
+            display("Could not convert value '{}' of field '{}' to type {}", got, field, want)
+        }
+        MissingField {
+            name: String,
+        } {
+            description("A field was missing in the serialized context")
+            display("Field '{}' was missing", name)
+        }
+        Deserialization(err: JsonError) {
+            description("Failed to deserialize context")
+            cause(err)
         }
     }
 }
@@ -66,7 +62,8 @@ impl Context {
     }
 
     pub fn deserialize(rd: &mut Read) -> Result<Context, ContextSchemaError> {
-        let v: Value = try!(from_reader(rd).map_err(|err| ContextSchemaError::Syntax(err)));
+        let v: Value = try!(from_reader(rd)
+            .map_err(|err| ContextSchemaError::Deserialization(err)));
         let get = |field: &str| {
             v.find(field)
                 .ok_or_else(|| ContextSchemaError::MissingField { name: field.to_owned() })

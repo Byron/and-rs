@@ -15,16 +15,17 @@ use std::fmt::{self, Formatter, Display};
 
 use std::path::{Path, PathBuf};
 
-struct WithCauses<'a> (&'a StdError);
+struct WithCauses<'a>(&'a StdError);
 
 impl<'a> Display for WithCauses<'a> {
     fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
-        try!(write!(fmt, "{}", self.0));
+        try!(write!(fmt, "ERROR: {}", self.0));
         let mut cursor = self.0;
         while let Some(err) = cursor.cause() {
-            try!(write!(fmt, "\ncaused by: \n\n{}", err));
+            try!(write!(fmt, "\ncaused by: \n{}", err));
             cursor = err;
         }
+        try!(write!(fmt, "\n"));
         Ok(())
     }
 }
@@ -41,6 +42,7 @@ quick_error! {
         ContextSchema(p: PathBuf, err: anders::ContextSchemaError) {
             description("The context file had an invalid format")
             display("Failed to interpret schema of context at '{}'", p.display())
+            cause(err)
         }
     }
 }
