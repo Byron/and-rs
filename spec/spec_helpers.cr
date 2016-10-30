@@ -137,15 +137,27 @@ def run_with(args)
   ->(more_args : String, chdir : String|Nil) {
     output = MemoryIO.new()
     error = MemoryIO.new()
-    ExecutionResult.new(result: Process.run(
+    ExecutionResult.new(
+    result: Process.run(
         command: ENV["EXECUTABLE"], 
         shell: false,
         args: "#{args} #{more_args}".split(' '),
         output: output, error: error, input: false,
-        chdir: chdir),
+        chdir: chdir
+      ),
       output: output,
       error: error,
       sandbox_dir: nil
     )
   }
 end
+
+def with_project_and_then(runner, context)
+  anders_new = run_with("new")
+  ->(more_args : String, chdir : String|Nil) {
+    process = anders_new.call "#{context[:project]} --package=#{:package}", chdir
+    return process unless process.result.success?
+    runner.call more_args, chdir
+  }
+end
+
