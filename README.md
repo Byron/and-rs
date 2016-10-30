@@ -42,6 +42,7 @@
  * This project was never tested on Windows, but _should_ work if run in an environment supporting `make` and `bash`.
  * Only `init-osx` is provided to help developer to get started. Other platforms are out of scope. It would be possible to install them only locally, using the [installation steps provided here][manual-android-platform-tools]
  * `crystal` currently does not work on windows, which limits development/running the specs to non-windows developers. This choice was made to get rid of Ruby, which was too
+ * `make spec` currently needs multiple environment variables to be set, which might be inconvenient to the casual user.
 
 [manual-android-platform-tools]: http://stackoverflow.com/questions/31374085/installing-adb-on-mac-os-x
 [meet-crystal]: https://www.youtube.com/watch?v=tAw5puTcGhA

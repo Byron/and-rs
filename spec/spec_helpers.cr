@@ -148,12 +148,16 @@ def be_successful()
   ProcessExpectation.new ExitCode.new 0
 end
 
+def env_or_abort(variable)
+  ENV[variable]?.try {|v| v} || ( puts "#{variable} environment variable must be set"; exit 5 )
+end
+
 def run_with(args)
   ->(more_args : String, chdir : String|Nil) {
     output = MemoryIO.new()
     error = MemoryIO.new()
     arguments = "#{args} #{more_args}"
-    program = ENV["EXECUTABLE"]
+    program = env_or_abort("EXECUTABLE")
     
     ExecutionResult.new(
       result: Process.run(
@@ -171,10 +175,10 @@ def run_with(args)
   }
 end
 
-def with_project_and_then(runner, project, package)
+def with_project_and_then(runner, project, package, target)
   anders_new = run_with("new")
   ->(more_args : String, chdir : String|Nil) {
-    process = anders_new.call "#{project} --package=#{package}", chdir
+    process = anders_new.call "#{project} --package=#{package} --target=#{target}", chdir
     return process unless process.result.success?
     runner.call more_args, chdir
   }
