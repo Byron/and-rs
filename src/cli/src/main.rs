@@ -9,6 +9,7 @@ use std::fs::File;
 use std::io::{self, Write, stderr};
 use clap::{App, Arg, SubCommand, ArgMatches};
 use anders::scaffolding::generate_application_scaffolding;
+use anders::compile::compile_application;
 
 use std::path::{Path, PathBuf};
 
@@ -23,7 +24,7 @@ quick_error! {
         }
         ContextSchema(p: PathBuf, err: anders::ContextSchemaError) {
             description("The context file had an invalid format")
-            display("Failed to interpret schema of context at '{}'", p.display())
+            display("Failed to interpret schema of context at '{}': {:?}", p.display(), err)
         }
     }
 }
@@ -40,10 +41,12 @@ fn ok_or_exit<T, E>(res: Result<T, E>) -> T
     }
 }
 
-fn context_from<'a>(args: &ArgMatches<'a>) -> Result<anders::Context, Error> {
+fn context_from<'a>(args: &'a ArgMatches<'a>) -> Result<(&'a Path, anders::Context), Error> {
     let context_path = Path::new(args.value_of("context").expect("clap to work"));
+    let context_dir = context_path.parent().unwrap_or_else(|| Path::new("."));
     let mut file = try!(File::open(context_path).context(context_path));
     anders::Context::deserialize(&mut file)
+        .map(|ctx| (context_dir, ctx))
         .map_err(|err| Error::ContextSchema(context_path.to_owned(), err))
 }
 
@@ -93,7 +96,8 @@ fn handle(matches: ArgMatches) {
             ok_or_exit(generate_application_scaffolding(&to_context(args)));
         }
         ("compile", Some(args)) => {
-            let ctx = ok_or_exit(context_from(args));
+            let (project_root, ctx) = ok_or_exit(context_from(args));
+            ok_or_exit(compile_application(project_root, &ctx));
         }
         _ => {
             println!("{}", matches.usage());
