@@ -9,8 +9,8 @@
  + `make spec`
 * Build the release-binary for the current platform
  + `make release`
-
-*Please note:* that make will install `rust` as project-local asset, provided you have no system installation. In the latter case, it will try to assure it is up-to-date by running `rustup|multirust update stable` just once.
+* Initialize your system for android development. Please note that this operation will require root permissions.
+ + `make init-osx`
 
 ### Everything Else
 
