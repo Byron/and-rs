@@ -3,6 +3,7 @@ extern crate quick_error;
 extern crate regex;
 extern crate serde_json;
 extern crate walkdir;
+extern crate rustc_serialize;
 
 mod context;
 mod process;

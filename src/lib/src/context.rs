@@ -3,6 +3,7 @@ use serde_json::{Error as JsonError, from_reader, to_string_pretty, Value};
 use std::collections::BTreeMap;
 use std::iter::FromIterator;
 use std::io::Read;
+use rustc_serialize::json::as_pretty_json;
 
 const VALID_PROJECT_NAME: &'static str = "^[0-9a-zA-Z]+$";
 const VALID_TARGET_NAME: &'static str = "^[0-9a-zA-Z_-]+$";
@@ -47,7 +48,7 @@ quick_error! {
     }
 }
 
-#[derive(Debug, Default, PartialEq, Eq)]
+#[derive(Debug, Default, PartialEq, Eq, RustcDecodable, RustcEncodable)]
 pub struct Context {
     pub application_name: String,
     pub package_path: String,
@@ -95,6 +96,7 @@ impl Context {
     }
 
     pub fn serialize(&self) -> String {
+//        format!("{}", as_pretty_json(self))
         let values = [("project".to_owned(),
                        Value::String(self.application_name
                           .to_owned())),
