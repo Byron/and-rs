@@ -39,7 +39,7 @@ quick_error! {
             context(p: & 'a Path, err: io::Error) -> (p.to_path_buf(), err)
             cause(err)
         }
-        ContextSchema(p: PathBuf, err: anders::ContextSchemaError) {
+        ContextSchema(p: PathBuf, err: anders::ContextDeserializationError) {
             description("The context file had an invalid format")
             display("Failed to interpret schema of context at '{}'", p.display())
             cause(err)
@@ -70,8 +70,8 @@ fn context_from<'a>(args: &'a ArgMatches<'a>) -> Result<(&'a Path, anders::Conte
 
 fn to_context<'a>(args: &ArgMatches<'a>) -> anders::Context {
     anders::Context {
-        application_name: args.value_of("app-name").expect("clap to do the checking").to_owned(),
-        package_path: args.value_of("package").expect("clap to do the checking").to_owned(),
+        project: args.value_of("app-name").expect("clap to do the checking").to_owned(),
+        package: args.value_of("package").expect("clap to do the checking").to_owned(),
         target: args.value_of("target").expect("clap to do the checking").to_owned(),
     }
 }

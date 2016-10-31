@@ -22,8 +22,8 @@ fn substitute_context(content: &str, ctx: &Context) -> String {
     let re: Regex = Regex::new(SUBTITUTION_KEY).expect("valid regex literal");
     re.replace_all(content, |c: &Captures| {
         match c.at(1).expect("single capture") {
-            "package" => ctx.package_path.to_owned(),
-            "project" => ctx.application_name.to_owned(),
+            "package" => ctx.package.to_owned(),
+            "project" => ctx.project.to_owned(),
             x => panic!("handle unknown variable: {}", x),
         }
     })
@@ -49,8 +49,8 @@ fn write_utf8_file(contents: &str, path: &Path) -> Result<(), Error> {
 
 pub fn generate_application_scaffolding(ctx: &Context) -> Result<(), Error> {
     try!(ctx.verify());
-    let app_path = |path: &str| Path::new(&ctx.application_name).join(path);
-    let package_dir = app_path(&dotted_package_name_to_package_path(&ctx.package_path));
+    let app_path = |path: &str| Path::new(&ctx.project).join(path);
+    let package_dir = app_path(&dotted_package_name_to_package_path(&ctx.package));
     let resource_dir = app_path("res/values");
     let obj_dir = app_path("obj");
 
@@ -59,9 +59,7 @@ pub fn generate_application_scaffolding(ctx: &Context) -> Result<(), Error> {
     try!(create_dir_all(&obj_dir).context(obj_dir.as_path()));
     try!(write_utf8_file(&manifest_content(ctx), &app_path("AndroidManifest.xml")));
     try!(write_utf8_file(&java_content(ctx),
-                         Path::new(&format!("{}/{}.java",
-                                            package_dir.display(),
-                                            ctx.application_name))));
+                         Path::new(&format!("{}/{}.java", package_dir.display(), ctx.project))));
     try!(write_utf8_file(&resource_content(ctx),
                          Path::new(&format!("{}/strings.xml", resource_dir.display()))));
     try!(write_utf8_file(&ctx.serialize(), &app_path("anders.json")));

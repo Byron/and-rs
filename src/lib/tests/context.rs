@@ -2,24 +2,11 @@ extern crate anders;
 
 mod context {
     use anders::{Context, ContextVerificationError};
-    use std::io::Cursor;
-
-    #[test]
-    fn it_does_not_loose_information_during_serde() {
-        let ctx = Context {
-            application_name: "name".to_owned(),
-            package_path: "package".to_owned(),
-            target: "target".to_owned(),
-        };
-
-        assert_eq!(ctx,
-        Context::deserialize(&mut Cursor::new(ctx.serialize())).unwrap());
-    }
 
     fn ctx_from_target(name: &str) -> Context {
         Context {
             target: name.to_owned(),
-            application_name: "name".to_owned(),
+            project: "name".to_owned(),
             ..Default::default()
         }
     }
@@ -46,7 +33,7 @@ mod context {
 
     fn ctx_from_project(name: &str) -> Context {
         Context {
-            application_name: name.to_owned(),
+            project: name.to_owned(),
             target: "target".to_owned(),
             ..Default::default()
         }

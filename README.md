@@ -46,6 +46,7 @@
  
 ##### `Anders` Program
  * It will not find its executables on windows as it does not yet [add an .exe][exe-on-windows] extension.
+ * Sometimes when doing IO, strings are used as buffers instead of using streams.
 
 [exe-on-windows]: http://stackoverflow.com/questions/37498864/finding-executable-in-path-with-rust
 [manual-android-platform-tools]: http://stackoverflow.com/questions/31374085/installing-adb-on-mac-os-x

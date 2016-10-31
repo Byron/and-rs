@@ -4,8 +4,8 @@ require "../src/lib/src/scaffolding/assets/resource"
 
 CONTEXT_JSON = <<-JSON
 {
-  "package": "${package}",
   "project": "${project}",
+  "package": "${package}",
   "target": "${target}"
 }
 JSON
