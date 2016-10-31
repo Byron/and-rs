@@ -1,4 +1,6 @@
 require "./spec_helpers.cr"
+
+Spec.override_default_formatter Spec::VerboseFormatter.new
   
 describe "`and" do
   project = "HelloWorld"
