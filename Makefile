@@ -1,4 +1,4 @@
-.PHONY: help clean spec test init-osx release
+.PHONY: help clean spec test init-osx release purge
 
 help:
 	$(info Make targets)
@@ -7,14 +7,16 @@ help:
 	$(info test          | run unit tests of all rust code)
 	$(info release       | build a release binary of the anders tool)
 	$(info init-osx      | WARNING: affects system: install android tools needed for basic android work)
+	$(info clean         | remove all directories actively managed by this makefile)
+	$(info purge         | reset this folder back to a pristine state using git clean -fxd)
 	$(info)
 
 include .make-config.env
 CARGO_IN_ENVIRONMENT := $(shell command -v cargo 2>&1)
 CARGO=$(abspath $(RUST_INSTALLDIR)/bin/cargo)
 CRYSTAL=$(abspath $(CRYSTAL_INSTALLDIR)/bin/crystal)
-ANDERS_EXECUTABLE_DEBUG=src/cli/target/debug/anders
-ANDERS_EXECUTABLE_RELEASE=src/cli/target/release/anders
+ANDERS_EXECUTABLE_DEBUG=build/debug/anders
+ANDERS_EXECUTABLE_RELEASE=build/release/anders
 RUST_SOURCE_FILES=$(shell find src -name '*.rs' -or -name '*.cr' -type f)
 CARGO_TOML_FILES=$(shell find src -name 'Cargo.toml' -type f)
 CRYSTAL_SOURCE_FILES=$(shell find spec -name '*.cr' -type f)
@@ -67,6 +69,8 @@ release: $(DIST_DIR)/anders
 init-osx:
 	brew install android-sdk
 	
+purge:
+	git clean -fxd
 clean:
 	rm -Rf $(RUST_INSTALLDIR)
 	rm -Rf $(CRYSTAL_INSTALLDIR)
