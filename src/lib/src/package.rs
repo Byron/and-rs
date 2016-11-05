@@ -2,7 +2,7 @@ use std::path::{PathBuf, Path};
 use super::{execute_program_verbosely, BatchExecutionError, Context, find_android_executable,
             find_file_in_path, android_platform_jar_path, get_env_as_path, FindError};
 
-fn fetch_or_create_android_keystore() -> Result<PathBuf, BatchExecutionError> {
+fn fetch_or_create_android_keystore() -> Result<PathBuf, FindError> {
     const ANDROID_KEYSTORE_NAME: &'static str = "debug.keystore";
     let home = try!(get_env_as_path("HOME"));
     let dir = home.join(".android");
@@ -10,21 +10,34 @@ fn fetch_or_create_android_keystore() -> Result<PathBuf, BatchExecutionError> {
     if keystore.is_file() {
         Ok(keystore)
     } else {
-        find_file_in_path("keytool")
-            .map_err(BatchExecutionError::from)
-            .and_then(|keytool_path| {
-                execute_program_verbosely(Path::new("."), &keytool_path, &[])
-                    .map(|_| keystore)
-                    .map_err(|_| {
-                        FindError::NotFound {
-                                name: ANDROID_KEYSTORE_NAME.to_owned(),
-                                dir: dir,
-                            }
-                            .into()
-                    })
-            })
-    }
+        let not_found = || {
+            FindError::NotFound {
+                name: ANDROID_KEYSTORE_NAME.to_owned(),
+                dir: dir.to_owned(),
+            }
+        };
 
+        find_file_in_path("keytool")
+            .and_then(|keytool_path| {
+                execute_program_verbosely(Path::new("."),
+                                          &keytool_path,
+                                          &["-genkey",
+                                            "-v",
+                                            "-keystore",
+                                            &keystore.to_string_lossy(),
+                                            "-storepass",
+                                            "android",
+                                            "-keypass",
+                                            "android",
+                                            "-alias",
+                                            "androiddebugkey",
+                                            "-dname",
+                                            "CN=Android Debug,O=Android,C=US"])
+                    .map(|_| keystore)
+                    .map_err(|_| not_found())
+            })
+            .map_err(|_| not_found())
+    }
 }
 
 pub fn package_application(at: &Path, ctx: &Context) -> Result<(), BatchExecutionError> {
