@@ -87,12 +87,12 @@ fn to_context<'a>(args: &ArgMatches<'a>) -> anders::Context {
 fn new_app<'a, 'b>() -> App<'a, 'b> {
     fn context<'a, 'b>() -> Arg<'a, 'b> {
         Arg::with_name("target")
-                .short("t")
-                .long("target")
-                .required(true)
-                .takes_value(true)
-                .help("name of the Android target, e.g. 'android-25' as listed by `android list \
-                       target`")
+            .short("t")
+            .long("target")
+            .required(true)
+            .takes_value(true)
+            .help("name of the Android target, e.g. 'android-25' as listed by `android list \
+                   target`")
     }
     App::new("anders")
         .version("1.0")
@@ -126,7 +126,8 @@ fn new_app<'a, 'b>() -> App<'a, 'b> {
             .arg(context()))
         .subcommand(SubCommand::with_name("package")
             .display_order(2)
-            .about("package previously compiled artifacts into a package signed with the Android Debug Key")
+            .about("package previously compiled artifacts into a package signed with the Android \
+                    Debug Key")
             .version("0.1")
             .arg(context()))
 }
@@ -136,13 +137,13 @@ fn handle(matches: ArgMatches) {
         ("new", Some(args)) => {
             ok_or_exit(generate_application_scaffolding(&to_context(args)));
         }
-        (cmd @ "compile", Some(args))
-        |(cmd @ "package", Some(args))=> {
+        (cmd @ "compile", Some(args)) |
+        (cmd @ "package", Some(args)) => {
             let (project_root, ctx) = ok_or_exit(context_from(args));
             match cmd {
                 "compile" => ok_or_exit(compile_application(&project_root, &ctx)),
                 "package" => ok_or_exit(package_application(&project_root, &ctx)),
-                _ => unreachable!()
+                _ => unreachable!(),
             }
         }
         _ => {
