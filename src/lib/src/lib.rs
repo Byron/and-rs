@@ -11,6 +11,7 @@ mod os;
 
 pub mod scaffolding;
 pub mod compile;
+pub mod package;
 
 pub use os::*;
 pub use context::*;
