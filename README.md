@@ -1,6 +1,8 @@
 ## `anders` is 'anders' [![Build Status](https://travis-ci.org/Byron/and-rs.svg?branch=master)](https://travis-ci.org/Byron/and-rs) ...
 `anders` is a tool to help with the typical android project development process, and essentially is a convenience wrapper around the lower level plumbing provided by the Android-SDK.
 
+Please note that in order to use it, you must have the Android SDK installed and the `ANDROID_HOME` environment variable set.
+
 ### How to ...
 
 * Learn about what the build system can do
@@ -9,7 +11,7 @@
  + `make spec`
 * Build the release-binary for the current platform
  + `make release`
-* Initialize your system for android development. Please note that this operation will require root permissions.
+* Initialize your system for android development. Please note that this operation will require root permissions. Also you will have to install the desired Android targets yourself, just run `android` afterwards.
  + `make init-osx`
 
 ### Everything Else
