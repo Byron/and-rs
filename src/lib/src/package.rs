@@ -1,7 +1,6 @@
 use std::path::Path;
-use std::io;
-use super::Context;
+use super::{BatchExecutionError, Context};
 
-pub fn package_application(at: &Path, ctx: &Context) -> Result<(), io::Error> {
+pub fn package_application(at: &Path, ctx: &Context) -> Result<(), BatchExecutionError> {
     Ok(())
 }

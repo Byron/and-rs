@@ -1,36 +1,10 @@
-use super::{ExecutionError, FindError};
-use std::io;
 use std::path::{PathBuf, Path};
-use super::{ChangeCWD, find_file_in_path, find_android_executable,
-    execute_program_verbosely, Context};
-use super::path_delimiter;
+use super::{ChangeCWD, find_file_in_path, find_android_executable, execute_program_verbosely,
+            Context, path_delimiter, BatchExecutionError};
 use glob::glob;
 use quick_error::ResultExt;
 
-
-quick_error! {
-    #[derive(Debug)]
-    pub enum Error {
-        ChangeCurrentWorkingDir(path: PathBuf, err: io::Error) {
-            description("Failed to change current working directory")
-            display("Failed to chagne current working directory to '{}'", path.display())
-            context(path: &'a Path, err: io::Error) -> (path.to_path_buf(), err)
-            cause(err)
-        }
-        Program(err: FindError) {
-            description("A required executable could not be found")
-            from()
-            cause(err)
-        }
-        Execution(err: ExecutionError) {
-            description("A program failed to execute")
-            from()
-            cause(err)
-        }
-    }
-}
-
-pub fn compile_application(at: &Path, ctx: &Context) -> Result<(), Error> {
+pub fn compile_application(at: &Path, ctx: &Context) -> Result<(), BatchExecutionError> {
     let (aapt_path, android_home_dir) = try!(find_android_executable("aapt"));
     let javac_path = try!(find_file_in_path("javac"));
     let android_jar_path = format!("{}/platforms/{}/android.jar",
@@ -39,15 +13,15 @@ pub fn compile_application(at: &Path, ctx: &Context) -> Result<(), Error> {
     try!(execute_program_verbosely(at,
                                    &aapt_path,
                                    &["package",
-                                       "-vfm",
-                                       "-S",
-                                       "res",
-                                       "-J",
-                                       "src",
-                                       "-M",
-                                       "AndroidManifest.xml",
-                                       "-I",
-                                       &android_jar_path]));
+                                     "-vfm",
+                                     "-S",
+                                     "res",
+                                     "-J",
+                                     "src",
+                                     "-M",
+                                     "AndroidManifest.xml",
+                                     "-I",
+                                     &android_jar_path]));
 
     let classpath = format!("{}{}obj", android_jar_path, path_delimiter());
     let source_files: Vec<_> = {

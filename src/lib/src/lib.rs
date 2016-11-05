@@ -8,6 +8,7 @@ extern crate glob;
 mod context;
 mod process;
 mod os;
+mod shared;
 
 pub mod scaffolding;
 pub mod compile;
@@ -16,3 +17,4 @@ pub mod package;
 pub use os::*;
 pub use context::*;
 pub use process::*;
+pub use shared::*;
