@@ -1,5 +1,5 @@
 use std::path::{PathBuf, Path};
-use super::super::{ChangeCWD, find_in_path, find_android_executable, execute_program_verbosely,
+use super::super::{ChangeCWD, find_file_in_path, find_android_executable, execute_program_verbosely,
                    Context};
 use super::Error;
 use super::super::path_delimiter;
@@ -8,7 +8,7 @@ use quick_error::ResultExt;
 
 pub fn compile_application(at: &Path, ctx: &Context) -> Result<(), Error> {
     let (aapt_path, android_home_dir) = try!(find_android_executable("aapt"));
-    let javac_path = try!(find_in_path("javac"));
+    let javac_path = try!(find_file_in_path("javac"));
     let android_jar_path = format!("{}/platforms/{}/android.jar",
                                    android_home_dir.display(),
                                    ctx.target);
