@@ -45,8 +45,7 @@
  * `make spec` currently needs multiple environment variables to be set, which might be inconvenient to the casual user.
  
 ##### `Anders` Program
- * It will not find its executables on windows as it does not yet [add an .exe][exe-on-windows] extension.
- * Sometimes when doing IO, strings are used as buffers instead of using streams.
+ * Sometimes when doing IO, strings are used as buffers instead of using streams, for convenience.
  * When building program invocations, for convenience formatting functions are used. These enforce usage of UTF8, which can actually cause invalid paths to be generated on filesystems with non-UTF8 paths and non-ascii characters.
 
 [exe-on-windows]: http://stackoverflow.com/questions/37498864/finding-executable-in-path-with-rust

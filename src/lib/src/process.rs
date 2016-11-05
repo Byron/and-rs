@@ -4,7 +4,7 @@ use std::env;
 use std::io::{self, Write};
 use std::ffi::OsStr;
 use std::process::{ExitStatus, Command};
-use super::path_delimiter;
+use super::{executable_suffix, path_delimiter};
 
 
 quick_error! {
@@ -66,6 +66,11 @@ pub fn find_in_path(name: &str) -> Result<PathBuf, FindError> {
 }
 
 pub fn find_executable(root: &Path, name: &str) -> Result<PathBuf, FindError> {
+    let name = {
+        let mut n = name.to_owned();
+        n.push_str(executable_suffix());
+        n
+    };
     for entry in WalkDir::new(root) {
         match entry {
             Ok(entry) => {
