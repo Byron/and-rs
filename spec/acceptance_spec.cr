@@ -26,7 +26,7 @@ describe "`and" do
           
           sandbox.should have_dir "#{project}/obj"
           sandbox.should have_file "#{project}/AndroidManifest.xml", with_content manifest
-          sandbox.should have_file "#{project}/#{package_dir package}/#{project}.java", with_content main_java
+          sandbox.should have_file "#{project}/src/#{package_dir package}/#{project}.java", with_content main_java
           sandbox.should have_file "#{project}/res/values/strings.xml", with_content resource
           sandbox.should have_file "#{project}/anders.json", with_content serialized_context
         end
@@ -41,7 +41,10 @@ describe "`and" do
       it "should compile a project and generate bytecode and resources" do
         sandboxed_anders with_project_and_then(compile, **context), "--context=#{project}/anders.json" do |process, sandbox|
           process.should be_successful
-          sandbox.should have_file "#{project}/#{package_dir package}/R.java"
+          sandbox.should have_file "#{project}/src/#{package_dir package}/R.java"
+          ["R$attr", "R$string", "R", "Hello"].each do |filename|
+              sandbox.should have_file "#{project}/obj/#{package_dir package}/#{filename}.class"
+            end
         end
       end
     end

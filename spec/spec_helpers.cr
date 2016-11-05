@@ -38,7 +38,7 @@ def anders(runner, more_args)
 end
 
 def package_dir(package)
-  "src/#{package.gsub '.', '/'}"
+  "#{package.gsub '.', '/'}"
 end
 
 struct DirectoryExpectation
