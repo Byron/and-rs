@@ -48,6 +48,15 @@
  * Sometimes when doing IO, strings are used as buffers instead of using streams, for convenience.
  * When building program invocations, for convenience formatting functions are used. These enforce usage of UTF8, which can actually cause invalid paths to be generated on filesystems with non-UTF8 paths and non-ascii characters.
 
+#### Performance Considerations
+ * No caching is done when finding tools in the `PATH` or in the `ANDROID_HOME`, doing more IOPS than strictly needed.
+ 
+#### Security Considerations
+Generally, as an unprovileged command-line program, there is probably not too much that can go wrong. However, let's collect all usages of untrusted input that could be used to make the `anders` misbehave.
+
+ * Reads a `.json` file from disk without verifying size or protecting against.
+ * Executes programs from the `PATH` and found within `ANDROID_HOME`, and thus trusts them without having any reason to.
+
 [exe-on-windows]: http://stackoverflow.com/questions/37498864/finding-executable-in-path-with-rust
 [manual-android-platform-tools]: http://stackoverflow.com/questions/31374085/installing-adb-on-mac-os-x
 [meet-crystal]: https://www.youtube.com/watch?v=tAw5puTcGhA
