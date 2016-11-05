@@ -1,6 +1,7 @@
 use regex::Regex;
 use std::io::{self, Read};
 use rustc_serialize::json::{decode, as_pretty_json, DecoderError};
+use std::collections::HashMap;
 
 const VALID_PROJECT_NAME: &'static str = "^[0-9a-zA-Z]+$";
 const VALID_TARGET_NAME: &'static str = "^[0-9a-zA-Z_-]+$";
@@ -38,10 +39,17 @@ quick_error! {
 }
 
 #[derive(Debug, Default, PartialEq, Eq, RustcDecodable, RustcEncodable)]
+pub struct Task {
+    pub before: Option<String>,
+    pub after: Option<String>
+}
+
+#[derive(Debug, Default, PartialEq, Eq, RustcDecodable, RustcEncodable)]
 pub struct Context {
     pub project: String,
     pub package: String,
     pub target: String,
+    pub tasks: HashMap<String, Task>
 }
 
 impl Context {

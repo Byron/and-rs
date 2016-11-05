@@ -4,6 +4,7 @@ extern crate clap;
 extern crate anders;
 
 use quick_error::ResultExt;
+use std::collections::HashMap;
 use std::process::exit;
 use std::fs::File;
 use std::io::{self, Write, stderr};
@@ -76,11 +77,23 @@ fn context_from<'a>(args: &'a ArgMatches<'a>) -> Result<(PathBuf, anders::Contex
         .map_err(|err| Error::ContextSchema(context_path.to_owned(), err))
 }
 
+fn build_tasks() -> HashMap<String, anders::Task> {
+    let mut map = HashMap::new();
+    for task_name in &["compile", "package"] {
+       map.insert(String::from(*task_name), anders::Task {
+           before: Some(format!("echo before {}", task_name)),
+           after: Some(format!("echo after {}", task_name)),
+       });
+    }
+    map
+}
+
 fn to_context<'a>(args: &ArgMatches<'a>) -> anders::Context {
     anders::Context {
         project: args.value_of("app-name").expect("app-name to be mandatory").to_owned(),
         package: args.value_of("package").expect("package to be mandatory").to_owned(),
         target: args.value_of("target").expect("target to be mandatory").to_owned(),
+        tasks: build_tasks()
     }
 }
 

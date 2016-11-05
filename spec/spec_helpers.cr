@@ -44,10 +44,11 @@ end
 struct DirectoryExpectation
   enum Issue
     ContentMismatch
+    ContentPartialMismatch
     Missing
   end
   
-  def initialize(@expected_value : String, @expected_content : String|Nil = nil)
+  def initialize(@expected_value : String, @expected_content : NamedTuple(content: String, partial: Bool)|Nil = nil )
     @issue = nil
     @actual_content = ""
   end
@@ -59,9 +60,14 @@ struct DirectoryExpectation
     if exists
       @expected_content.try do |expected_content|
         @actual_content = File.read(path)
-        content_matches = @actual_content == expected_content
+        if expected_content[:partial]
+          content_matches = @actual_content =~ Regex.new(expected_content[:content])
+          @issue = Issue::ContentPartialMismatch unless content_matches
+        else
+          content_matches = @actual_content == expected_content[:content]
+          @issue = Issue::ContentMismatch unless content_matches
+        end
         res = res && content_matches
-        @issue = Issue::ContentMismatch unless content_matches
       end
     end
     res
@@ -74,6 +80,16 @@ struct DirectoryExpectation
       expected sandbox to contain: #{@expected_value}
       See directory at #{actual_value} for more information
       DETAILS
+    when Issue::ContentPartialMismatch
+      <<-DETAILS
+      file #{@expected_value} content did not match.
+      >>> CONTENT
+      #{@actual_content}
+      <<< CONTENT
+      >>> DID NOT MATCH
+      #{@expected_content.try { |nt| nt[:content] }}
+      <<< DID NOT MATCH
+      DETAILS
     when Issue::ContentMismatch
       <<-DETAILS
       file #{@expected_value} did not have the correct content
@@ -81,7 +97,7 @@ struct DirectoryExpectation
       #{@actual_content}
       <<< ACTUAL
       >>> EXPECTED
-      #{@expected_content}
+      #{@expected_content.try { |nt| nt[:content] }}
       <<< EXPECTED
       DETAILS
     end
@@ -126,7 +142,7 @@ struct ProcessExpectation
   end
 end
 
-def have_file(file, content : Nil|String = nil)
+def have_file(file, content : NamedTuple(content: String, partial: Bool)|Nil = nil)
   DirectoryExpectation.new file, content
 end
 
@@ -135,8 +151,12 @@ def have_dir(file)
 end
 
 
+def with_content_matching(content)
+  {content: content, partial: true}
+end
+
 def with_content(content)
-  content
+  {content: content, partial: false}
 end
 
 def exit_code(value)
