@@ -1,6 +1,6 @@
 use std::path::{PathBuf, Path};
-use super::super::{ChangeCWD, find_file_in_path, find_android_executable, execute_program_verbosely,
-                   Context};
+use super::super::{ChangeCWD, find_file_in_path, find_android_executable,
+                   execute_program_verbosely, Context};
 use super::Error;
 use super::super::path_delimiter;
 use glob::glob;

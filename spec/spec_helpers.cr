@@ -178,12 +178,16 @@ def run_with(args)
   }
 end
 
-def with_project_and_then(runner, project, package, target)
+def with_project_and_then(*runners, project, package, target)
   anders_new = run_with("new")
   ->(more_args : String, chdir : String|Nil) {
     process = anders_new.call "#{project} --package=#{package} --target=#{target}", chdir
     return process unless process.result.success?
-    runner.call more_args, chdir
+    runners.each do |runner|
+      process = runner.call more_args, chdir
+      return process unless process.result.success?
+    end
+    process
   }
 end
 

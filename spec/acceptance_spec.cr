@@ -34,9 +34,9 @@ describe "`and" do
     end
   end
 
+  context = {project: project, package: package, target: target}
+  compile = run_with "compile"
   describe "compile`" do
-    compile = run_with "compile"
-    context = {project: project, package: package, target: target}
     describe "compile`" do
       it "should compile a project and generate bytecode and resources" do
         sandboxed_anders with_project_and_then(compile, **context), "--context=#{project}/anders.json" do |process, sandbox|
@@ -45,6 +45,18 @@ describe "`and" do
           ["R$attr", "R$string", "R", project].each do |filename|
               sandbox.should have_file "#{project}/obj/#{package_dir package}/#{filename}.class"
             end
+        end
+      end
+    end
+  end
+  
+  describe "package`" do
+    package_cmd = run_with "package"
+    describe "package`" do
+      it "should produce a signed package from compiled sources" do
+        sandboxed_anders with_project_and_then(compile, package_cmd, **context), "--context=#{project}/anders.json" do |process, sandbox|
+          process.should be_successful
+          sandbox.should have_file "#{project}/bin/#{project}.signed.apk"
         end
       end
     end
