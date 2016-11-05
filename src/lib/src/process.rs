@@ -24,8 +24,8 @@ quick_error! {
             cause(err)
         }
         NotFound{dir: PathBuf, name: String} {
-            description("executable not found")
-            display("An executable named '{}' could not be found under '{}'", name, dir.display())
+            description("file not found")
+            display("An file named '{}' could not be found under '{}'", name, dir.display())
         }
     }
 }
@@ -33,16 +33,17 @@ quick_error! {
 quick_error! {
     #[derive(Debug)]
     pub enum ExecutionError {
-        Spawn{ path: PathBuf, err: io::Error } {
+        Spawn{ executable: PathBuf, at: PathBuf, err: io::Error } {
             description("A program could not be spawned")
-            display("Failed to start '{}'", path.display())
+            display("Failed to start '{}' within '{}'", executable.display(), at.display())
             cause(err)
         }
-        Exit{executable: PathBuf, args: Vec<String>, status: ExitStatus} {
+        Exit{executable: PathBuf, at: PathBuf, args: Vec<String>, status: ExitStatus} {
             description("Program exited with non-zero code.")
-            display("Program invocation `{} {}` failed with exit code {}",
+            display("Program invocation `{} {}` within '{}' failed with exit code {}",
                         executable.display(),
                         &args.join(" "),
+                        at.display(),
                         status.code().expect("exit code when program is done"))
         }
     }
@@ -128,7 +129,8 @@ pub fn execute_program_verbosely(at_dir: &Path,
         .status()
         .map_err(|err| {
             ExecutionError::Spawn {
-                path: executable.to_owned(),
+                executable: executable.to_owned(),
+                at: at_dir.to_owned(),
                 err: err,
             }
         }));
@@ -138,6 +140,7 @@ pub fn execute_program_verbosely(at_dir: &Path,
     } else {
         Err(ExecutionError::Exit {
             executable: executable.to_owned(),
+            at: at_dir.to_owned(),
             args: args.iter().cloned().map(String::from).collect(),
             status: status,
         })

@@ -1,7 +1,13 @@
 use std::path::{Path, PathBuf};
 use std::io;
+use super::Context;
 use super::process::{FindError, ExecutionError};
 
+pub fn android_platform_jar_path(android_home_dir: &Path, ctx: &Context) -> String {
+    format!("{}/platforms/{}/android.jar",
+                                   android_home_dir.display(),
+                                   ctx.target)
+}
 
 quick_error! {
     #[derive(Debug)]

@@ -44,9 +44,12 @@
  * `crystal` currently does not work on windows, which limits development/running the specs to non-windows developers. This choice was made to get rid of Ruby, which was too
  * `make spec` currently needs multiple environment variables to be set, which might be inconvenient to the casual user.
  
-##### `Anders` Program
+##### `Anders` Program Internals
  * Sometimes when doing IO, strings are used as buffers instead of using streams, for convenience.
  * When building program invocations, for convenience formatting functions are used. These enforce usage of UTF8, which can actually cause invalid paths to be generated on filesystems with non-UTF8 paths and non-ascii characters.
+ 
+##### `Anders` Program Features
+ * It forces the java source and target language level to 1.7, as `dx` doesn't seem to support a higher level yet.
 
 #### Performance Considerations
  * No caching is done when finding tools in the `PATH` or in the `ANDROID_HOME`, doing more IOPS than strictly needed.

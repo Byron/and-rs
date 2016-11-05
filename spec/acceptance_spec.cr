@@ -24,7 +24,9 @@ describe "`and" do
           resource = substitute_context.call RESOURCE
           serialized_context = substitute_context.call CONTEXT_JSON
           
-          sandbox.should have_dir "#{project}/obj"
+          ["obj", "lib", "bin"].each do |dir|
+            sandbox.should have_dir "#{project}/#{dir}"
+          end
           sandbox.should have_file "#{project}/AndroidManifest.xml", with_content manifest
           sandbox.should have_file "#{project}/src/#{package_dir package}/#{project}.java", with_content main_java
           sandbox.should have_file "#{project}/res/values/strings.xml", with_content resource
@@ -53,7 +55,9 @@ describe "`and" do
     it "should produce a signed package from compiled sources" do
       sandboxed_anders with_project_and_then(compile, package_cmd, **context), "--context=#{project}/anders.json" do |process, sandbox|
         process.should be_successful
-        sandbox.should have_file "#{project}/bin/#{project}.signed.apk"
+        [".signed", ".unsigned", ""].each do |suffix|
+          sandbox.should have_file "#{project}/bin/#{project}#{suffix}.apk"
+        end
       end
     end
   end
