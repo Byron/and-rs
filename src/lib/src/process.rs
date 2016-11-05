@@ -1,7 +1,9 @@
 use std::path::{Path, PathBuf};
 use walkdir::{Error as IterationError, WalkDir};
 use std::env;
+use std::io::{self, Write};
 use std::ffi::OsStr;
+use std::process::{ExitStatus, Command};
 
 
 quick_error! {
@@ -23,6 +25,24 @@ quick_error! {
         NotFound{dir: PathBuf, name: String} {
             description("executable not found")
             display("An executable named '{}' could not be found under '{}'", name, dir.display())
+        }
+    }
+}
+
+quick_error! {
+    #[derive(Debug)]
+    pub enum ExecutionError {
+        Spawn{ path: PathBuf, err: io::Error } {
+            description("A program could not be spawned")
+            display("Failed to start '{}'", path.display())
+            cause(err)
+        }
+        Exit{executable: PathBuf, args: Vec<String>, status: ExitStatus} {
+            description("Program exited with non-zero code.")
+            display("Program invocation `{} {}` failed with exit code {}",
+                        executable.display(),
+                        &args.join(" "),
+                        status.code().expect("exit code when program is done"))
         }
     }
 }
@@ -64,4 +84,36 @@ pub fn find_android_executable(name: &str) -> Result<PathBuf, FindError> {
         })
         .map(PathBuf::from)
         .and_then(|root| find_executable(&root, name))
+}
+
+pub fn execute_program_verbosely(at_dir: &Path,
+                                 executable: &Path,
+                                 args: &[&str])
+                                 -> Result<(), ExecutionError> {
+    write!(io::stderr(),
+           "{} >>> {} {}\n",
+           at_dir.display(),
+           executable.display(),
+           args.join(" "))
+        .ok();
+    let status: ExitStatus = try!(Command::new(executable)
+        .current_dir(at_dir)
+        .args(args)
+        .status()
+        .map_err(|err| {
+            ExecutionError::Spawn {
+                path: executable.to_owned(),
+                err: err,
+            }
+        }));
+
+    if status.success() {
+        Ok(())
+    } else {
+        Err(ExecutionError::Exit {
+            executable: executable.to_owned(),
+            args: args.iter().cloned().map(String::from).collect(),
+            status: status,
+        })
+    }
 }

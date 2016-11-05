@@ -1,16 +1,15 @@
-use std::path::PathBuf;
-use std::io;
-use super::super::FindError;
+use super::super::{ExecutionError, FindError};
 
 quick_error! {
     #[derive(Debug)]
     pub enum Error {
-        Spawn{ path: PathBuf, err: io::Error } {
-            description("A program could not be spawned")
-            display("Failed to start '{}'", path.display())
+        Program(err: FindError) {
+            description("A required executable could not be found")
+            from()
             cause(err)
         }
-        Program(err: FindError) {
+        Execution(err: ExecutionError) {
+            description("A program failed to execute")
             from()
             cause(err)
         }
