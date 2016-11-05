@@ -73,7 +73,7 @@ pub fn find_executable(root: &Path, name: &str) -> Result<PathBuf, FindError> {
     })
 }
 
-pub fn find_android_executable(name: &str) -> Result<PathBuf, FindError> {
+pub fn find_android_executable(name: &str) -> Result<(PathBuf, PathBuf), FindError> {
     const ANDROID_HOME: &'static str = "ANDROID_HOME";
     env::var(ANDROID_HOME)
         .map_err(|err| {
@@ -83,7 +83,7 @@ pub fn find_android_executable(name: &str) -> Result<PathBuf, FindError> {
             }
         })
         .map(PathBuf::from)
-        .and_then(|root| find_executable(&root, name))
+        .and_then(|root| find_executable(&root, name).map(|exe| (exe, root)))
 }
 
 pub fn execute_program_verbosely(at_dir: &Path,

@@ -3,7 +3,7 @@ use super::super::{find_android_executable, execute_program_verbosely, Context};
 use super::Error;
 
 pub fn compile_application(at: &Path, ctx: &Context) -> Result<(), Error> {
-    let aapt_path = try!(find_android_executable("aapt"));
+    let (aapt_path, android_home_dir) = try!(find_android_executable("aapt"));
     try!(execute_program_verbosely(at,
                                    &aapt_path,
                                    &["-vfm",
@@ -13,6 +13,9 @@ pub fn compile_application(at: &Path, ctx: &Context) -> Result<(), Error> {
                                      "src",
                                      "-M",
                                      "AndroidManifest.xml",
-                                     "-I"]));
+                                     "-I",
+                                     &format!("{}/platforms/{}/android.jar",
+                                              android_home_dir.display(),
+                                              ctx.target)]));
     Ok(())
 }

@@ -47,6 +47,7 @@
 ##### `Anders` Program
  * It will not find its executables on windows as it does not yet [add an .exe][exe-on-windows] extension.
  * Sometimes when doing IO, strings are used as buffers instead of using streams.
+ * When building program invocations, for convenience formatting functions are used. These enforce usage of UTF8, which can actually cause invalid paths to be generated on filesystems with non-UTF8 paths and non-ascii characters.
 
 [exe-on-windows]: http://stackoverflow.com/questions/37498864/finding-executable-in-path-with-rust
 [manual-android-platform-tools]: http://stackoverflow.com/questions/31374085/installing-adb-on-mac-os-x

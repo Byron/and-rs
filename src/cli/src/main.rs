@@ -8,7 +8,7 @@ use std::process::exit;
 use std::fs::File;
 use std::io::{self, Write, stderr};
 use clap::{App, Arg, SubCommand, ArgMatches};
-use anders::scaffolding::generate_application_scaffolding;
+use anders::scaffolding::{generate_application_scaffolding, CONTEXT_FILENAME};
 use anders::compile::compile_application;
 use std::error::Error as StdError;
 use std::fmt::{self, Formatter, Display};
@@ -35,7 +35,7 @@ quick_error! {
     pub enum Error {
         ContextReadingIo(p: PathBuf, err: io::Error) {
             description("The context file could not be read")
-            display("Failed to read context from '{}'", p.display())
+            display("Failed to read context from '{}', use -c <path> to specify it", p.display())
             context(p: & 'a Path, err: io::Error) -> (p.to_path_buf(), err)
             cause(err)
         }
@@ -59,10 +59,17 @@ fn ok_or_exit<T, E>(res: Result<T, E>) -> T
     }
 }
 
-fn context_from<'a>(args: &'a ArgMatches<'a>) -> Result<(&'a Path, anders::Context), Error> {
-    let context_path = Path::new(args.value_of("context").expect("clap to work"));
-    let context_dir = context_path.parent().unwrap_or_else(|| Path::new("."));
-    let mut file = try!(File::open(context_path).context(context_path));
+fn context_from<'a>(args: &'a ArgMatches<'a>) -> Result<(PathBuf, anders::Context), Error> {
+    let (context_path, context_dir) = {
+        let path = PathBuf::from(args.value_of("context").expect("context to be mandatory"));
+        if path.is_dir() {
+            (path.join(CONTEXT_FILENAME), path)
+        } else {
+            let dir = path.parent().unwrap_or_else(|| Path::new(".")).to_owned();
+            (path, dir)
+        }
+    };
+    let mut file = try!(File::open(&context_path).context(context_path.as_path()));
     anders::Context::deserialize(&mut file)
         .map(|ctx| (context_dir, ctx))
         .map_err(|err| Error::ContextSchema(context_path.to_owned(), err))
@@ -70,9 +77,9 @@ fn context_from<'a>(args: &'a ArgMatches<'a>) -> Result<(&'a Path, anders::Conte
 
 fn to_context<'a>(args: &ArgMatches<'a>) -> anders::Context {
     anders::Context {
-        project: args.value_of("app-name").expect("clap to do the checking").to_owned(),
-        package: args.value_of("package").expect("clap to do the checking").to_owned(),
-        target: args.value_of("target").expect("clap to do the checking").to_owned(),
+        project: args.value_of("app-name").expect("app-name to be mandatory").to_owned(),
+        package: args.value_of("package").expect("package to be mandatory").to_owned(),
+        target: args.value_of("target").expect("target to be mandatory").to_owned(),
     }
 }
 
@@ -111,8 +118,9 @@ fn new_app<'a, 'b>() -> App<'a, 'b> {
                 .long("context")
                 .required(false)
                 .takes_value(true)
-                .default_value("./anders.json")
-                .help("path to the file created after executing new.")))
+                .default_value(".")
+                .help("path to the file created after executing new, or to the directory \
+                       containing it.")))
 }
 
 fn handle(matches: ArgMatches) {
@@ -122,7 +130,7 @@ fn handle(matches: ArgMatches) {
         }
         ("compile", Some(args)) => {
             let (project_root, ctx) = ok_or_exit(context_from(args));
-            ok_or_exit(compile_application(project_root, &ctx));
+            ok_or_exit(compile_application(&project_root, &ctx));
         }
         _ => {
             println!("{}", matches.usage());

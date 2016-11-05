@@ -47,6 +47,8 @@ fn write_utf8_file(contents: &str, path: &Path) -> Result<(), Error> {
     Ok(())
 }
 
+pub const CONTEXT_FILENAME: &'static str = "anders.json";
+
 pub fn generate_application_scaffolding(ctx: &Context) -> Result<(), Error> {
     try!(ctx.verify());
     let app_path = |path: &str| Path::new(&ctx.project).join(path);
@@ -62,7 +64,7 @@ pub fn generate_application_scaffolding(ctx: &Context) -> Result<(), Error> {
                          Path::new(&format!("{}/{}.java", package_dir.display(), ctx.project))));
     try!(write_utf8_file(&resource_content(ctx),
                          Path::new(&format!("{}/strings.xml", resource_dir.display()))));
-    try!(write_utf8_file(&ctx.serialize(), &app_path("anders.json")));
+    try!(write_utf8_file(&ctx.serialize(), &app_path(CONTEXT_FILENAME)));
     Ok(())
 }
 
