@@ -11,7 +11,9 @@ help:
 	$(info purge         | reset this folder back to a pristine state using git clean -fxd)
 	$(info)
 
-include .make-config.env
+RUST_INSTALLDIR=.rust
+CRYSTAL_INSTALLDIR=.crystal
+DIST_DIR=dist
 CARGO=$(abspath $(RUST_INSTALLDIR)/bin/cargo)
 CRYSTAL=$(abspath $(CRYSTAL_INSTALLDIR)/bin/crystal)
 ANDERS_EXECUTABLE_DEBUG=build/debug/anders

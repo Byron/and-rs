@@ -16,11 +16,5 @@ android:
     # if you need to run emulator(s) during your tests
     # - sys-img-armeabi-v7a-android-22
     # - sys-img-x86-android-17
-before_script:
-  - pip install 'travis-cargo<0.2' --user  && export PATH=$HOME/Library/Python/2.7/bin:$HOME/.local/bin:$PATH
 script:
   - ANDROID_TARGET=android-24 make test spec
-  - source .make-config.env && export PATH=$PATH:$PWD/$RUST_INSTALLDIR/bin && cd src/lib && travis-cargo doc && travis-cargo doc-upload
-env:
-  global:
-    secure: f4v1Cyu8tX045XdSBo8eUCuQ3hV1WhnnLQsdWXDDL/E1o5Uvaa71QA3BkYcQKLupulkAdtoKpXYBRRLpwbhPZroWV2UmVt+fiHl2DtRY12TLingDq9+M55974KzfZP9qk3g+QZA/G4PgBQk8oMPgsB789XRtR5I/T72z6JQ8FmpOyM8MkMTS2j/eQp4MtLXYOQdL0pTMB2zwlLN0XR2co0jgSflZ8pV49B4StcnDA2NIDGN82h2EtqbWXq3t/nkKzhyBQiXGzaHaHh72YuHECthjcbybopAZQoRiBewsakoaa0q3dcHnpBzbbZtOtu/pLbtROrbCUIc/0P3oS54QMiF47scwLKZWk7TMeRJ0875Bx974eJR8GIS2XnObOnuJHNcd16TQnb7CfmTbds4GE8DsQQu7YUMkCycyfQOxrCZ+lb31hxQLXIiLU0RU/LUn8LHPAjesgY+4efEhO2BJ9cM1VNjFqnMw7hoSjBeQkWXNRRpLfQ2/jWpZ7JTFeWUNMsAsD9Qa68PsjV3kZOdolE7Zcqx8gPy1vJ4rfbaOlNeroog2MHIWY+iLCCX/LYydevzaSKaSFpSS5rPmHfsFmZJmGH4gMI8wupBEM7z/bPqgNwPl5rxuyLUlKLZ7Jtd5itCdFEJIW3Mzg5JUlMGAJmzUW9EwC3Dpl3nrKa7o8gY=
