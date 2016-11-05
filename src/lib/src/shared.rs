@@ -5,8 +5,8 @@ use super::process::{FindError, ExecutionError};
 
 pub fn android_platform_jar_path(android_home_dir: &Path, ctx: &Context) -> String {
     format!("{}/platforms/{}/android.jar",
-                                   android_home_dir.display(),
-                                   ctx.target)
+            android_home_dir.display(),
+            ctx.target)
 }
 
 quick_error! {
