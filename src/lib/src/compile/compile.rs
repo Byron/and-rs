@@ -6,7 +6,8 @@ pub fn compile_application(at: &Path, ctx: &Context) -> Result<(), Error> {
     let (aapt_path, android_home_dir) = try!(find_android_executable("aapt"));
     try!(execute_program_verbosely(at,
                                    &aapt_path,
-                                   &["-vfm",
+                                   &["package",
+                                     "-vfm",
                                      "-S",
                                      "res",
                                      "-J",

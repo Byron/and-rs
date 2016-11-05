@@ -83,7 +83,7 @@ pub fn find_android_executable(name: &str) -> Result<(PathBuf, PathBuf), FindErr
             }
         })
         .map(PathBuf::from)
-        .and_then(|root| find_executable(&root, name).map(|exe| (exe, root)))
+        .and_then(|root| find_executable(&root.join("build-tools"), name).map(|exe| (exe, root)))
 }
 
 pub fn execute_program_verbosely(at_dir: &Path,

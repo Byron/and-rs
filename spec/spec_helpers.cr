@@ -70,7 +70,10 @@ struct DirectoryExpectation
   def failure_message(actual_value)
     case @issue
     when Issue::Missing
-      "expected sandbox to contain: #{@expected_value}"
+      <<-DETAILS
+      expected sandbox to contain: #{@expected_value}
+      See directory at #{actual_value} for more information
+      DETAILS
     when Issue::ContentMismatch
       <<-DETAILS
       file #{@expected_value} did not have the correct content

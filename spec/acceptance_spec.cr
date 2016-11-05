@@ -41,7 +41,7 @@ describe "`and" do
       it "should compile a project and generate bytecode and resources" do
         sandboxed_anders with_project_and_then(compile, **context), "--context=#{project}/anders.json" do |process, sandbox|
           process.should be_successful
-          sandbox.should have_file "#{project}/#{package_dir package}/R.jar"
+          sandbox.should have_file "#{project}/#{package_dir package}/R.java"
         end
       end
     end
