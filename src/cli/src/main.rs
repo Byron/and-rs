@@ -86,13 +86,14 @@ fn to_context<'a>(args: &ArgMatches<'a>) -> anders::Context {
 
 fn new_app<'a, 'b>() -> App<'a, 'b> {
     fn context<'a, 'b>() -> Arg<'a, 'b> {
-        Arg::with_name("target")
-            .short("t")
-            .long("target")
-            .required(true)
+        Arg::with_name("context")
+            .short("c")
+            .long("context")
+            .required(false)
             .takes_value(true)
-            .help("name of the Android target, e.g. 'android-25' as listed by `android list \
-                   target`")
+            .default_value(".")
+            .help("path to the file created after executing new, or to the directory \
+                       containing it.")
     }
     App::new("anders")
         .version("1.0")
