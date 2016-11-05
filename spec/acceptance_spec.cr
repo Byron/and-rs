@@ -42,7 +42,7 @@ describe "`and" do
         sandboxed_anders with_project_and_then(compile, **context), "--context=#{project}/anders.json" do |process, sandbox|
           process.should be_successful
           sandbox.should have_file "#{project}/src/#{package_dir package}/R.java"
-          ["R$attr", "R$string", "R", "Hello"].each do |filename|
+          ["R$attr", "R$string", "R", project].each do |filename|
               sandbox.should have_file "#{project}/obj/#{package_dir package}/#{filename}.class"
             end
         end

@@ -138,3 +138,21 @@ pub fn execute_program_verbosely(at_dir: &Path,
         })
     }
 }
+
+pub struct ChangeCWD {
+    previous_cwd: PathBuf,
+}
+
+impl ChangeCWD {
+    pub fn into(dir: &Path) -> Result<ChangeCWD, io::Error> {
+        let res = ChangeCWD { previous_cwd: try!(env::current_dir()) };
+        try!(env::set_current_dir(dir));
+        Ok(res)
+    }
+}
+
+impl Drop for ChangeCWD {
+    fn drop(&mut self) {
+        env::set_current_dir(&self.previous_cwd).ok();
+    }
+}
