@@ -55,7 +55,12 @@ pub const CONTEXT_FILENAME: &'static str = "anders.json";
 
 pub fn generate_application_scaffolding(ctx: &Context) -> Result<(), Error> {
     try!(ctx.verify());
-    let app_path = |path: &str| Path::new(&ctx.project).join(path);
+    let dir = Path::new(&ctx.project);
+    let app_path = |path: &str| dir.join(path);
+    if dir.is_dir() {
+        return Err(Error::ExistingDirectory(dir.to_owned()));
+    }
+
     let package_dir = app_path(&dotted_package_name_to_package_path(&ctx.package));
     let resource_dir = app_path("res/values");
 
