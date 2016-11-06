@@ -33,6 +33,16 @@ describe "`and" do
           sandbox.should have_file "#{project}/anders.json", with_content_matching serialized_context
         end
       end
+      
+      if travis
+        it "creates a signed package using make package without from a new project" do
+          sandboxed_anders new_, "#{project} --package #{package} --target=#{target}" do |process, sandbox|
+            sandbox.should_not have_file "#{project}/bin/#{project}.apk"
+            system "make -C #{project} package"
+            sandbox.should have_file "#{project}/bin/#{project}.apk"
+          end
+        end
+      end
     end
   end
 
