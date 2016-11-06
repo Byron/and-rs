@@ -148,8 +148,8 @@ fn new_app<'a, 'b>() -> App<'a, 'b> {
             .arg(context()))
         .subcommand(SubCommand::with_name("launch")
             .display_order(3)
-            .about("send a previously created signed package to a simulator. The latter will be \
-                    brought up if needed.")
+            .about("send a previously created signed package to the currently running simulator. \
+                    The latter will be brought up if needed.")
             .version("0.1")
             .arg(context()))
 }
