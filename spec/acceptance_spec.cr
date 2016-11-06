@@ -42,6 +42,9 @@ describe "`and" do
     it "should compile a project and generate bytecode and resources" do
       sandboxed_anders with_project_and_then(compile, **context), "--context=#{project}/anders.json" do |process, sandbox|
         process.should be_successful
+        process.output.to_s.should contain "before compile"
+        process.output.to_s.should contain "after compile"
+        
         sandbox.should have_file "#{project}/src/#{package_dir package}/R.java"
         ["R$attr", "R$string", "R", project].each do |filename|
           sandbox.should have_file "#{project}/obj/#{package_dir package}/#{filename}.class"
@@ -56,6 +59,9 @@ describe "`and" do
       members = ["AndroidManifest.xml", "classes.dex", "resources.arsc"]
       sandboxed_anders with_project_and_then(compile, package_cmd, **context), "--context=#{project}" do |process, sandbox|
         process.should be_successful
+        process.output.to_s.should contain "before package"
+        process.output.to_s.should contain "after package"
+        
         [".signed", ".unsigned", ""].each do |suffix|
           sandbox.should have_file "#{project}/bin/#{project}#{suffix}.apk", with_package_members members
         end
