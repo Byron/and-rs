@@ -72,10 +72,7 @@ describe "`and" do
   describe "launch`" do
     launch = run_with "launch"
     it "should attempt to send signed package to emulator" do
-      sandboxed_anders with_project_and_then(compile, package_cmd, **context), "--context=#{project}" do |process, sandbox|
-        process.should be_successful
-        
-        process = anders launch, "MyEmulator --context=#{project}"
+      sandboxed_anders with_project_and_then(compile, package_cmd, launch, **context), "--context=#{project}" do |process, sandbox|
         process.should be_successful
         process.should have_output_matching "before launch"
         process.should have_output_matching "after launch"

@@ -151,10 +151,6 @@ fn new_app<'a, 'b>() -> App<'a, 'b> {
             .about("send a previously created signed package to a simulator. The latter will be \
                     brought up if needed.")
             .version("0.1")
-            .arg(Arg::with_name("emulator-name")
-                .required(true)
-                .index(1)
-                .help("name of an existing emulator"))
             .arg(context()))
 }
 
@@ -170,12 +166,7 @@ fn handle(matches: ArgMatches) {
             match cmd {
                 "compile" => ok_or_exit(compile_application(&project_root, &ctx)),
                 "package" => ok_or_exit(package_application(&project_root, &ctx)),
-                "launch" => {
-                    ok_or_exit(launch_application(&project_root,
-                                                  &ctx,
-                                                  args.value_of("emulator-name")
-                                                      .expect("arg to be mandatory")))
-                }
+                "launch" => ok_or_exit(launch_application(&project_root, &ctx)),
                 _ => unreachable!(),
             }
         }

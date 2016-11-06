@@ -54,7 +54,7 @@ pub fn find_file_in_path(name: &str) -> Result<PathBuf, FindError> {
         path.to_string_lossy()
             .split(path_delimiter())
             .map(Path::new)
-            .map(|subpath| find_file(subpath, name))
+            .map(|subpath| find_executable(subpath, name))
             .filter_map(Result::ok)
             .next()
             .ok_or_else(|| {
@@ -66,7 +66,7 @@ pub fn find_file_in_path(name: &str) -> Result<PathBuf, FindError> {
     })
 }
 
-pub fn find_file(root: &Path, name: &str) -> Result<PathBuf, FindError> {
+pub fn find_executable(root: &Path, name: &str) -> Result<PathBuf, FindError> {
     let name = {
         let mut n = name.to_owned();
         n.push_str(executable_suffix());
@@ -110,7 +110,7 @@ pub fn get_env_as_path(name: &'static str) -> Result<PathBuf, FindError> {
 
 pub fn find_android_executable(name: &str) -> Result<(PathBuf, PathBuf), FindError> {
     get_env_as_path("ANDROID_HOME")
-        .and_then(|root| find_file(&root.join("build-tools"), name).map(|exe| (exe, root)))
+        .and_then(|root| find_executable(&root.join("build-tools"), name).map(|exe| (exe, root)))
 }
 
 pub fn execute_bash_script_verbosely(at_dir: &Path,
