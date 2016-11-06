@@ -13,6 +13,7 @@ mod shared;
 pub mod scaffolding;
 pub mod compile;
 pub mod package;
+pub mod launch;
 
 pub use os::*;
 pub use context::*;

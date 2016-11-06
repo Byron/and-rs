@@ -12,6 +12,7 @@ use clap::{App, Arg, SubCommand, ArgMatches};
 use anders::scaffolding::{generate_application_scaffolding, CONTEXT_FILENAME};
 use anders::compile::{COMMAND_NAME as COMPILE_COMMAND, compile_application};
 use anders::package::{COMMAND_NAME as PACKAGE_COMMAND, package_application};
+use anders::launch::{COMMAND_NAME as LAUNCH_COMMAND, launch_application};
 use std::error::Error as StdError;
 use std::fmt::{self, Formatter, Display};
 
@@ -79,7 +80,7 @@ fn context_from<'a>(args: &'a ArgMatches<'a>) -> Result<(PathBuf, anders::Contex
 
 fn build_tasks() -> HashMap<String, anders::Task> {
     let mut map = HashMap::new();
-    for task_name in &[COMPILE_COMMAND, PACKAGE_COMMAND] {
+    for task_name in &[COMPILE_COMMAND, PACKAGE_COMMAND, LAUNCH_COMMAND] {
         map.insert(String::from(*task_name),
                    anders::Task {
                        before: Some(format!("echo before {}", task_name)),
@@ -145,6 +146,16 @@ fn new_app<'a, 'b>() -> App<'a, 'b> {
                     Debug Key")
             .version("0.1")
             .arg(context()))
+        .subcommand(SubCommand::with_name("launch")
+            .display_order(3)
+            .about("send a previously created signed package to a simulator. The latter will be \
+                    brought up if needed.")
+            .version("0.1")
+            .arg(Arg::with_name("emulator-name")
+                .required(true)
+                .index(1)
+                .help("name of an existing emulator"))
+            .arg(context()))
 }
 
 fn handle(matches: ArgMatches) {
@@ -153,11 +164,18 @@ fn handle(matches: ArgMatches) {
             ok_or_exit(generate_application_scaffolding(&to_context(args)));
         }
         (cmd @ "compile", Some(args)) |
-        (cmd @ "package", Some(args)) => {
+        (cmd @ "package", Some(args)) |
+        (cmd @ "launch", Some(args)) => {
             let (project_root, ctx) = ok_or_exit(context_from(args));
             match cmd {
                 "compile" => ok_or_exit(compile_application(&project_root, &ctx)),
                 "package" => ok_or_exit(package_application(&project_root, &ctx)),
+                "launch" => {
+                    ok_or_exit(launch_application(&project_root,
+                                                  &ctx,
+                                                  args.value_of("emulator-name")
+                                                      .expect("arg to be mandatory")))
+                }
                 _ => unreachable!(),
             }
         }
