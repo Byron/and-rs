@@ -1,7 +1,7 @@
 use std::path::{PathBuf, Path};
 use super::{ChangeCWD, find_file_in_path, find_android_executable, execute_program_verbosely,
             Context, path_delimiter, BatchExecutionError, android_platform_jar_path,
-            execute_program_verbosely_with_task};
+            extract_tasks_for, execute_script};
 use glob::glob;
 use quick_error::ResultExt;
 
@@ -11,19 +11,21 @@ pub fn compile_application(at: &Path, ctx: &Context) -> Result<(), BatchExecutio
     let (aapt_path, android_home_dir) = try!(find_android_executable("aapt"));
     let javac_path = try!(find_file_in_path("javac"));
     let android_jar_path = android_platform_jar_path(&android_home_dir, ctx);
-    try!(execute_program_verbosely_with_task(ctx.tasks.get(COMMAND_NAME),
-                                             at,
-                                             &aapt_path,
-                                             &["package",
-                                               "-vfm",
-                                               "-S",
-                                               "res",
-                                               "-J",
-                                               "src",
-                                               "-M",
-                                               "AndroidManifest.xml",
-                                               "-I",
-                                               &android_jar_path]));
+    let (before, after) = extract_tasks_for(COMMAND_NAME, ctx);
+
+    try!(execute_script(before, at));
+    try!(execute_program_verbosely(at,
+                                   &aapt_path,
+                                   &["package",
+                                     "-vfm",
+                                     "-S",
+                                     "res",
+                                     "-J",
+                                     "src",
+                                     "-M",
+                                     "AndroidManifest.xml",
+                                     "-I",
+                                     &android_jar_path]));
 
     let classpath = format!("{}{}obj", android_jar_path, path_delimiter());
     let source_files: Vec<_> = {
@@ -51,5 +53,6 @@ pub fn compile_application(at: &Path, ctx: &Context) -> Result<(), BatchExecutio
     }
     let args = args;
     try!(execute_program_verbosely(at, &javac_path, &args));
+    try!(execute_script(after, at));
     Ok(())
 }
