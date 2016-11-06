@@ -17,9 +17,9 @@ Learn about what it can do with `anders -h`, and create a new project using:
 anders new hello --package com.company.hello --target android-24
 ```
 
-Change into the newly created directory and either go through the `compile`, `package` and `launch` subcommands in order, or more easily run `make package` or `make launch`, which will launch `anders` for you after placing it into the _bin/_ directory.
+Change into the newly created directory and either go through the `compile`, `package` and `launch` sub-commands in order, or more easily run `make package` or `make launch`, which will launch `anders` for you after placing it into the _bin/_ directory.
 
-If you want to put the project into git and send it to others, they will be able to do the same, just `make package` and you are ready to go.
+If you want to put the project into `git` and send it to others, they will be able to do the same, just `make package` and they are ready to go.
 
 ### How to develop anders?
 
@@ -70,7 +70,7 @@ If you want to put the project into git and send it to others, they will be able
  
 ##### `Anders` Program Features
  * It forces the java source and target language level to 1.7, as `dx` doesn't seem to support a higher level yet.
- * `tasks->(compile|pacakge|launch)->(before|after) only support what can be specified in `bash -c <cmd-string>`
+ * `tasks->(compile|pacakge|launch)->(before|after)` only support what can be specified in `bash -c <cmd-string>`
 
 #### Performance Considerations
  * No caching is done when finding tools in the `PATH` or in the `ANDROID_HOME`, doing more IOPS than strictly needed.
