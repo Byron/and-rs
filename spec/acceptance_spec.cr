@@ -9,6 +9,7 @@ describe "`and" do
   
   describe "new`" do
     new_ = run_with "new"
+    new_args = "#{project} --package #{package} --target=#{target}"
     it "does not accept non-ascii characters and dashes as project name" do
       (anders new_, "hello-world$!123 --package=bar --target=foo").should be_failing_with exit_code 3
     end
@@ -17,7 +18,7 @@ describe "`and" do
       substitute_context = ->(content : String) { content.gsub /\$\{\w+\}/, substitution_keys }
 
       it "successfully creates a project if the project name is valid" do
-        sandboxed_anders new_, "#{project} --package #{package} --target=#{target}" do |process, sandbox|
+        sandboxed_anders new_, new_args do |process, sandbox|
           process.should be_successful
           manifest = substitute_context.call MANIFEST
           main_java = substitute_context.call MAIN_JAVA
@@ -34,9 +35,17 @@ describe "`and" do
         end
       end
       
+      it "does not create projects into existing directories to prevent overwriting anything" do
+        sandboxed_anders new_, new_args do |process, sandbox|
+          process.should be_successful
+          process = new_.call(new_args, sandbox)
+          process.should be_failing_with exit_code 3
+        end
+      end
+      
       if travis
         it "creates a signed package using make package without from a new project" do
-          sandboxed_anders new_, "#{project} --package #{package} --target=#{target}" do |process, sandbox|
+          sandboxed_anders new_, new_args do |process, sandbox|
             sandbox.should_not have_file "#{project}/bin/#{project}.apk"
             system "make -C #{sandbox}/#{project} package"
             sandbox.should have_file "#{project}/bin/#{project}.apk"
