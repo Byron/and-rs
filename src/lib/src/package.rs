@@ -1,6 +1,7 @@
 use std::path::{PathBuf, Path};
 use super::{execute_program_verbosely, BatchExecutionError, Context, find_android_executable,
-            find_file_in_path, android_platform_jar_path, get_env_as_path, FindError};
+            find_file_in_path, android_platform_jar_path, get_env_as_path, FindError,
+            execute_program_verbosely_with_task};
 
 fn fetch_or_create_android_keystore() -> Result<PathBuf, FindError> {
     const ANDROID_KEYSTORE_NAME: &'static str = "debug.keystore";
@@ -87,13 +88,14 @@ pub fn package_application(at: &Path, ctx: &Context) -> Result<(), BatchExecutio
                                      &unsigned_apk_path,
                                      "androiddebugkey"]));
 
-    try!(execute_program_verbosely(at,
-                                   &zipalign_path,
-                                   &["-v",
-                                     "-f",
-                                     "4",
-                                     &signed_apk_path,
-                                     &format!("bin/{}.apk", ctx.project)]));
+    try!(execute_program_verbosely_with_task(ctx.tasks.get("package"),
+                                             at,
+                                             &zipalign_path,
+                                             &["-v",
+                                               "-f",
+                                               "4",
+                                               &signed_apk_path,
+                                               &format!("bin/{}.apk", ctx.project)]));
 
     Ok(())
 }

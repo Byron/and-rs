@@ -4,7 +4,7 @@ use std::env;
 use std::io::{self, Write};
 use std::ffi::OsStr;
 use std::process::{ExitStatus, Command};
-use super::{executable_suffix, path_delimiter};
+use super::{executable_suffix, path_delimiter, Task, BatchExecutionError};
 
 
 quick_error! {
@@ -111,6 +111,30 @@ pub fn get_env_as_path(name: &'static str) -> Result<PathBuf, FindError> {
 pub fn find_android_executable(name: &str) -> Result<(PathBuf, PathBuf), FindError> {
     get_env_as_path("ANDROID_HOME")
         .and_then(|root| find_file(&root.join("build-tools"), name).map(|exe| (exe, root)))
+}
+
+pub fn execute_bash_script_verbosely(at_dir: &Path,
+                                     script: &str)
+                                     -> Result<(), BatchExecutionError> {
+    let bash_path = try!(find_file_in_path("bash"));
+    execute_program_verbosely(at_dir, &bash_path, &["-c", script]).map_err(Into::into)
+}
+
+pub fn execute_program_verbosely_with_task(task: Option<&Task>,
+                                           at_dir: &Path,
+                                           executable: &Path,
+                                           args: &[&str])
+                                           -> Result<(), BatchExecutionError> {
+    let (before, after) = task.map(|t| (t.before.as_ref(), t.after.as_ref()))
+        .unwrap_or((None, None));
+    if let Some(script) = before {
+        try!(execute_bash_script_verbosely(at_dir, script));
+    };
+    try!(execute_program_verbosely(at_dir, executable, args));
+    if let Some(script) = after {
+        try!(execute_bash_script_verbosely(at_dir, script));
+    };
+    Ok(())
 }
 
 pub fn execute_program_verbosely(at_dir: &Path,
