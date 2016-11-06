@@ -5,6 +5,10 @@ require "file"
 require "./assets"
 require "zip-crystal/zip"
 
+def travis()
+  ENV["TRAVIS"]?
+end
+
 struct ExitCode
   getter status
   def initialize(@status : Int32)
