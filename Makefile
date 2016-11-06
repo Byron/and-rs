@@ -40,7 +40,10 @@ $(ANDERS_EXECUTABLE_RELEASE): $(RUST_SOURCE_FILES) $(CARGO) $(CARGO_TOML_FILES)
 $(ANDERS_EXECUTABLE_DEBUG): $(RUST_SOURCE_FILES) $(CARGO) $(CARGO_TOML_FILES)
 	cd src/cli && $(CARGO) build
 	
-$(SPEC_EXECUTABLE): $(CRYSTAL) $(CRYSTAL_SOURCE_FILES)
+libs/zip-crystal: $(CRYSTAL)
+	$(CRYSTAL) deps
+	
+$(SPEC_EXECUTABLE): $(CRYSTAL) $(CRYSTAL_SOURCE_FILES) libs/zip-crystal
 	@mkdir -p $(dir $@)
 	$(CRYSTAL) build -o $@ spec/acceptance_spec.cr
 	
