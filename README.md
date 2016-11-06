@@ -52,6 +52,7 @@ Please note that in order to use it, you must have the Android SDK installed and
  
 ##### `Anders` Program Features
  * It forces the java source and target language level to 1.7, as `dx` doesn't seem to support a higher level yet.
+ * `tasks->(compile|pacakge|launch)->(before|after) only support what can be specified in `bash -c <cmd-string>`
 
 #### Performance Considerations
  * No caching is done when finding tools in the `PATH` or in the `ANDROID_HOME`, doing more IOPS than strictly needed.
