@@ -109,8 +109,11 @@ pub fn get_env_as_path(name: &'static str) -> Result<PathBuf, FindError> {
 }
 
 pub fn find_android_executable(name: &str) -> Result<(PathBuf, PathBuf), FindError> {
-    get_env_as_path("ANDROID_HOME")
-        .and_then(|root| find_executable(&root.join("build-tools"), name).map(|exe| (exe, root)))
+    get_env_as_path("ANDROID_HOME").and_then(|root| {
+        find_executable(&root.join("build-tools"), name)
+            .or_else(|_| find_executable(&root, name))
+            .map(|exe| (exe, root))
+    })
 }
 
 pub fn execute_bash_script_verbosely(at_dir: &Path,

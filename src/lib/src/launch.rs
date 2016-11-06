@@ -7,6 +7,7 @@ pub fn launch_application(at: &Path, ctx: &Context) -> Result<(), BatchExecution
     let (before, after) = extract_tasks_for(COMMAND_NAME, ctx);
     let (adb_path, _) = try!(find_android_executable("adb"));
     try!(execute_script(before, at));
+    execute_program_verbosely(at, &adb_path, &["-e", "uninstall", &ctx.package]).ok();
     try!(execute_program_verbosely(at,
                                    &adb_path,
                                    &["-e", "install", &format!("bin/{}.apk", ctx.project)]));
