@@ -3,7 +3,25 @@
 
 Please note that in order to use it, you must have the Android SDK installed and the `ANDROID_HOME` environment variable set.
 
-### How to ...
+### How to use anders?
+
+After installation via:
+```
+git clone https://github.com/Byron/and-rs && cd and-rs && make release
+```
+
+You will find the binary in `dist/anders`, and we will just assume it can be invoked with `anders` from now on.
+
+Learn about what it can do with `anders -h`, and create a new project using:
+```
+anders new hello --package com.company.hello --target android-24
+```
+
+Change into the newly created directory and either go through the `compile`, `package` and `launch` subcommands in order, or more easily run `make package` or `make launch`, which will launch `anders` for you after placing it into the _bin/_ directory.
+
+If you want to put the project into git and send it to others, they will be able to do the same, just `make package` and you are ready to go.
+
+### How to develop anders?
 
 * Learn about what the build system can do
  + `make`
