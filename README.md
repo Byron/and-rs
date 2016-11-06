@@ -3,7 +3,7 @@
 
 Please note that in order to use it, you must have the Android SDK installed and the `ANDROID_HOME` environment variable set.
 
-### How to use anders?
+### How to use `anders`?
 
 After installation via:
 ```
@@ -21,7 +21,7 @@ Change into the newly created directory and either go through the `compile`, `pa
 
 If you want to put the project into `git` and send it to others, they will be able to do the same, just `make package` and they are ready to go.
 
-### How to develop anders?
+### How to develop `anders`?
 
 * Learn about what the build system can do
  + `make`
