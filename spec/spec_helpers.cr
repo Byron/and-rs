@@ -187,6 +187,29 @@ struct ProcessExpectation
   end
 end
 
+struct ProcessOutputExpectation
+  def initialize(@expected_value : String)
+  end
+
+  def match(actual_value)
+    actual_value.output.to_s =~ Regex.new(@expected_value)
+  end
+
+  def failure_message(actual_value)
+    <<-DESCRIPTION
+    CMD: #{actual_value.invocation}
+    >>> STANDARD OUTPUT
+    #{actual_value.output.to_s}
+    <<< STANDARD OUTPUT
+    Did not contain #{@expected_value}
+    DESCRIPTION
+  end
+
+  def negative_failure_message(actual_value)
+    failure_message actual_value
+  end
+end
+
 def have_file(file, content : DirectoryExpectationValue = nil)
   DirectoryExpectation.new file, content
 end
@@ -218,6 +241,10 @@ end
 
 def be_successful()
   ProcessExpectation.new ExitCode.new 0
+end
+
+def have_output_matching(content)
+  ProcessOutputExpectation.new content
 end
 
 def env_or_abort(variable)

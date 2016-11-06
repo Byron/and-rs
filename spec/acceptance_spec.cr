@@ -42,8 +42,8 @@ describe "`and" do
     it "should compile a project and generate bytecode and resources" do
       sandboxed_anders with_project_and_then(compile, **context), "--context=#{project}/anders.json" do |process, sandbox|
         process.should be_successful
-        process.output.to_s.should contain "before compile"
-        process.output.to_s.should contain "after compile"
+        process.should have_output_matching "before compile"
+        process.should have_output_matching "after compile"
         
         sandbox.should have_file "#{project}/src/#{package_dir package}/R.java"
         ["R$attr", "R$string", "R", project].each do |filename|
@@ -59,8 +59,8 @@ describe "`and" do
       members = ["AndroidManifest.xml", "classes.dex", "resources.arsc"]
       sandboxed_anders with_project_and_then(compile, package_cmd, **context), "--context=#{project}" do |process, sandbox|
         process.should be_successful
-        process.output.to_s.should contain "before package"
-        process.output.to_s.should contain "after package"
+        process.should have_output_matching "before package"
+        process.should have_output_matching "after package"
         
         [".signed", ".unsigned", ""].each do |suffix|
           sandbox.should have_file "#{project}/bin/#{project}#{suffix}.apk", with_package_members members
@@ -72,10 +72,13 @@ describe "`and" do
   describe "launch`" do
     launch = run_with "launch"
     it "should attempt to send signed package to emulator" do
-      sandboxed_anders with_project_and_then(compile, package_cmd, launch, **context), "--context=#{project}" do |process, sandbox|
+      sandboxed_anders with_project_and_then(compile, package_cmd, **context), "--context=#{project}" do |process, sandbox|
         process.should be_successful
-        process.output.to_s.should contain "before launch"
-        process.output.to_s.should contain "after launch"
+        
+        process = anders launch, "MyEmulator --context=#{project}"
+        process.should be_successful
+        process.should have_output_matching "before launch"
+        process.should have_output_matching "after launch"
       end
     end
   end
