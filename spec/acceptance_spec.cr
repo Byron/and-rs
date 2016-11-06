@@ -53,10 +53,11 @@ describe "`and" do
   describe "package`" do
     package_cmd = run_with "package"
     it "should produce a signed, zipaligned package from compiled sources" do
+      members = ["AndroidManifest.xml", "classes.dex", "resources.arsc"]
       sandboxed_anders with_project_and_then(compile, package_cmd, **context), "--context=#{project}" do |process, sandbox|
         process.should be_successful
         [".signed", ".unsigned", ""].each do |suffix|
-          sandbox.should have_file "#{project}/bin/#{project}#{suffix}.apk", with_package_members ["foo"]
+          sandbox.should have_file "#{project}/bin/#{project}#{suffix}.apk", with_package_members members
         end
       end
     end

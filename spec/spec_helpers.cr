@@ -48,13 +48,16 @@ struct DirectoryExpectation
   enum Issue
     ContentMismatch
     ContentPartialMismatch
+    MemberMismatch
     FailedToParseZipFile
     Missing
+    None
   end
   
   def initialize(@expected_value : String, @expected_content : DirectoryExpectationValue = nil)
-    @issue = nil
+    @issue = Issue::None
     @actual_content = ""
+    @actual_zip_members = [] of String
   end
   
   def match(actual_value : String)
@@ -62,21 +65,27 @@ struct DirectoryExpectation
     res = exists = File.exists? path
     @issue = Issue::Missing unless exists
     if exists
-      case @expected_content
+      case expected = @expected_content
       when Array(String)
-        expected = @expected_content.as(Array(String))
         begin
+          members = expected
+          issue = Issue::None
+          actual_members = [] of String
           Zip.read path do |zf|
             paths = zf.entries.map {|e| e.path}
-            res = (paths - expected).empty?
+            includes_all_members = (paths - members).size == paths.size - members.size
+            res = res && includes_all_members
+            actual_members = paths
+            issue = Issue::MemberMismatch unless includes_all_members
           end
+          @actual_zip_members = actual_members
+          @issue = issue
         rescue
           res = false
           @issue = Issue::FailedToParseZipFile
         end
       when NamedTuple(content: String, partial: Bool)
         @actual_content = File.read(path)
-        expected = @expected_content.as(NamedTuple(content: String, partial: Bool))
         if expected[:partial]
           content_matches = @actual_content =~ Regex.new(expected[:content])
           @issue = Issue::ContentPartialMismatch unless content_matches
@@ -99,6 +108,19 @@ struct DirectoryExpectation
       DETAILS
     when Issue::FailedToParseZipFile
       "file #{@expected_value} could not be parsed as zip file"
+    when Issue::MemberMismatch
+      <<-DETAILS
+      zip file #{@expected_value} did not store all required members
+      >>> ACTUAL MEMBERS
+      #{@actual_zip_members.join('\n')}
+      <<< ACTUAL MEMBERS
+      >>> EXPECTED MEMBERS
+      #{case ex = @expected_content
+        when Array(String)
+       ex.join('\n')
+       end}
+      <<<
+      DETAILS
     when Issue::ContentPartialMismatch
       <<-DETAILS
       file #{@expected_value} content did not match.
