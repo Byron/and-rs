@@ -1,7 +1,7 @@
 use std::path::{PathBuf, Path};
 use super::{execute_program_verbosely, BatchExecutionError, Context, find_android_executable,
             find_file_in_path, android_platform_jar_path, get_env_as_path, FindError,
-            execute_program_verbosely_with_task};
+            execute_bash_script_verbosely};
 
 pub const COMMAND_NAME: &'static str = "package";
 
@@ -50,6 +50,14 @@ pub fn package_application(at: &Path, ctx: &Context) -> Result<(), BatchExecutio
     let jarsigner_path = try!(find_file_in_path("jarsigner"));
     let debug_keystore_path = try!(fetch_or_create_android_keystore());
 
+    let (before, after) = ctx.tasks
+        .get(COMMAND_NAME)
+        .map(|t| (t.before.as_ref(), t.after.as_ref()))
+        .unwrap_or((None, None));
+    if let Some(script) = before {
+        try!(execute_bash_script_verbosely(at, script));
+    };
+
     try!(execute_program_verbosely(at,
                                    &dx_path,
                                    &["--dex",
@@ -90,14 +98,15 @@ pub fn package_application(at: &Path, ctx: &Context) -> Result<(), BatchExecutio
                                      &unsigned_apk_path,
                                      "androiddebugkey"]));
 
-    try!(execute_program_verbosely_with_task(ctx.tasks.get("package"),
-                                             at,
-                                             &zipalign_path,
-                                             &["-v",
-                                               "-f",
-                                               "4",
-                                               &signed_apk_path,
-                                               &format!("bin/{}.apk", ctx.project)]));
-
+    try!(execute_program_verbosely(at,
+                                   &zipalign_path,
+                                   &["-v",
+                                     "-f",
+                                     "4",
+                                     &signed_apk_path,
+                                     &format!("bin/{}.apk", ctx.project)]));
+    if let Some(script) = after {
+        try!(execute_bash_script_verbosely(at, script));
+    };
     Ok(())
 }
