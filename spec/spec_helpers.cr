@@ -42,21 +42,19 @@ def package_dir(package)
   "#{package.gsub '.', '/'}"
 end
 
-alias DirectoryExpectationValue = NamedTuple(content: String, partial: Bool, zip_members: Array(String))|Nil
+alias DirectoryExpectationValue = NamedTuple(content: String, partial: Bool)|Array(String)|Nil
 
 struct DirectoryExpectation
   enum Issue
     ContentMismatch
     ContentPartialMismatch
     FailedToParseZipFile
-    MemberMismatch
     Missing
   end
   
   def initialize(@expected_value : String, @expected_content : DirectoryExpectationValue = nil)
     @issue = nil
     @actual_content = ""
-    @seen_zip_members = [] of String
   end
   
   def match(actual_value : String)
@@ -64,30 +62,29 @@ struct DirectoryExpectation
     res = exists = File.exists? path
     @issue = Issue::Missing unless exists
     if exists
-      @expected_content.try do |expected|
-        if expected[:zip_members].empty?
-          @actual_content = File.read(path)
-          if expected[:partial]
-            content_matches = @actual_content =~ Regex.new(expected[:content])
-            @issue = Issue::ContentPartialMismatch unless content_matches
-          else
-            content_matches = @actual_content == expected[:content]
-            @issue = Issue::ContentMismatch unless content_matches
+      case @expected_content
+      when Array(String)
+        expected = @expected_content.as(Array(String))
+        begin
+          Zip.read path do |zf|
+            paths = zf.entries.map {|e| e.path}
+            res = (paths - expected).empty?
           end
-          res = res && content_matches
-        else
-          begin
-            Zip.read path do |zf|
-              @seen_zip_members = paths = zf.entries.map {|e| e.path}
-              includes_all_members = (paths - expected[:zip_members]).empty?
-              @issue = Issue::MemberMismatch unless includes_all_members
-              res = res && includes_all_members
-            end
-          rescue
-            res = false
-            @issue = Issue::FailedToParseZipFile
-          end
+        rescue
+          res = false
+          @issue = Issue::FailedToParseZipFile
         end
+      when NamedTuple(content: String, partial: Bool)
+        @actual_content = File.read(path)
+        expected = @expected_content.as(NamedTuple(content: String, partial: Bool))
+        if expected[:partial]
+          content_matches = @actual_content =~ Regex.new(expected[:content])
+          @issue = Issue::ContentPartialMismatch unless content_matches
+        else
+          content_matches = @actual_content == expected[:content]
+          @issue = Issue::ContentMismatch unless content_matches
+        end
+        res = res && content_matches
       end
     end
     res
@@ -102,16 +99,6 @@ struct DirectoryExpectation
       DETAILS
     when Issue::FailedToParseZipFile
       "file #{@expected_value} could not be parsed as zip file"
-    when Issue::MemberMismatch
-      <<-DETAILS
-      zip file #{@expected_value} did not store all required members
-      >>> ACTUAL MEMBERS
-      @seen_zip_members.join('\n')
-      <<< ACTUAL MEMBERS
-      >>> EXPECTED MEMBERS
-      #{@expected_content.try {|ec| ec[:zip_members].join('\n')}}
-      <<<
-      DETAILS
     when Issue::ContentPartialMismatch
       <<-DETAILS
       file #{@expected_value} content did not match.
@@ -119,7 +106,9 @@ struct DirectoryExpectation
       #{@actual_content}
       <<< CONTENT
       >>> DID NOT MATCH
-      #{@expected_content.try {|ec| ec[:content]}}
+      #{@expected_content.try do |ec|
+        ec[:content] if ec.is_a? NamedTuple
+      end}
       <<< DID NOT MATCH
       DETAILS
     when Issue::ContentMismatch
@@ -129,7 +118,9 @@ struct DirectoryExpectation
       #{@actual_content}
       <<< ACTUAL
       >>> EXPECTED
-      #{@expected_content.try {|ec| ec[:content]}}
+      #{@expected_content.try do |ec|
+        ec[:content] if ec.is_a? NamedTuple
+      end}
       <<< EXPECTED
       DETAILS
     end
@@ -184,15 +175,15 @@ end
 
 
 def with_content_matching(content)
-  {content: content, partial: true, zip_members: [] of String}
+  {content: content, partial: true}
 end
 
 def with_content(content)
-  {content: content, partial: false, zip_members: [] of String}
+  {content: content, partial: false}
 end
 
 def with_package_members(members : Array(String))
-  {content: "", partial: false, zip_members: members}
+  members
 end
 
 def exit_code(value)
