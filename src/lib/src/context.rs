@@ -41,7 +41,7 @@ quick_error! {
 #[derive(Debug, Default, PartialEq, Eq, RustcDecodable, RustcEncodable)]
 pub struct Task {
     pub before: Option<String>,
-    pub after: Option<String>
+    pub after: Option<String>,
 }
 
 #[derive(Debug, Default, PartialEq, Eq, RustcDecodable, RustcEncodable)]
@@ -49,7 +49,7 @@ pub struct Context {
     pub project: String,
     pub package: String,
     pub target: String,
-    pub tasks: HashMap<String, Task>
+    pub tasks: HashMap<String, Task>,
 }
 
 impl Context {

@@ -1,0 +1,11 @@
+name: anders-specs
+version: 1.0.0
+
+authors:
+  - Sebastian Thiel <byronimo@gmail.com>
+
+license: MIT
+
+dependencies:
+  zip-crystal:
+    github: pablotron/zip-crystal

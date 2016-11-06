@@ -52,11 +52,11 @@ describe "`and" do
   
   describe "package`" do
     package_cmd = run_with "package"
-    it "should produce a signed package from compiled sources" do
-      sandboxed_anders with_project_and_then(compile, package_cmd, **context), "--context=#{project}/anders.json" do |process, sandbox|
+    it "should produce a signed, zipaligned package from compiled sources" do
+      sandboxed_anders with_project_and_then(compile, package_cmd, **context), "--context=#{project}" do |process, sandbox|
         process.should be_successful
         [".signed", ".unsigned", ""].each do |suffix|
-          sandbox.should have_file "#{project}/bin/#{project}#{suffix}.apk"
+          sandbox.should have_file "#{project}/bin/#{project}#{suffix}.apk", with_package_members ["foo"]
         end
       end
     end

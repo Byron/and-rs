@@ -6,4 +6,5 @@ dist/
 spec/.ok
 *.rs.bk
 .DS_Store
-
+libs/
+.shards/

@@ -1,0 +1,6 @@
+version: 1.0
+shards:
+  zip-crystal:
+    github: pablotron/zip-crystal
+    version: 0.1.2
+

@@ -3,6 +3,7 @@ require "io"
 require "file_utils"
 require "file"
 require "./assets"
+require "zip-crystal/zip"
 
 struct ExitCode
   getter status
@@ -41,14 +42,17 @@ def package_dir(package)
   "#{package.gsub '.', '/'}"
 end
 
+alias DirectoryExpectationValue = NamedTuple(content: String, partial: Bool)|Array(String)|Nil
+
 struct DirectoryExpectation
   enum Issue
     ContentMismatch
     ContentPartialMismatch
+    FailedToParseZipFile
     Missing
   end
   
-  def initialize(@expected_value : String, @expected_content : NamedTuple(content: String, partial: Bool)|Nil = nil )
+  def initialize(@expected_value : String, @expected_content : DirectoryExpectationValue = nil)
     @issue = nil
     @actual_content = ""
   end
@@ -58,13 +62,26 @@ struct DirectoryExpectation
     res = exists = File.exists? path
     @issue = Issue::Missing unless exists
     if exists
-      @expected_content.try do |expected_content|
+      case @expected_content
+      when Array(String)
+        expected = @expected_content.as(Array(String))
+        begin
+          Zip.read path do |zf|
+            paths = zf.entries.map {|e| e.path}
+            res = (paths - expected).empty?
+          end
+        rescue
+          res = false
+          @issue = Issue::FailedToParseZipFile
+        end
+      when NamedTuple(content: String, partial: Bool)
         @actual_content = File.read(path)
-        if expected_content[:partial]
-          content_matches = @actual_content =~ Regex.new(expected_content[:content])
+        expected = @expected_content.as(NamedTuple(content: String, partial: Bool))
+        if expected[:partial]
+          content_matches = @actual_content =~ Regex.new(expected[:content])
           @issue = Issue::ContentPartialMismatch unless content_matches
         else
-          content_matches = @actual_content == expected_content[:content]
+          content_matches = @actual_content == expected[:content]
           @issue = Issue::ContentMismatch unless content_matches
         end
         res = res && content_matches
@@ -80,6 +97,8 @@ struct DirectoryExpectation
       expected sandbox to contain: #{@expected_value}
       See directory at #{actual_value} for more information
       DETAILS
+    when Issue::FailedToParseZipFile
+      "file #{@expected_value} could not be parsed as zip file"
     when Issue::ContentPartialMismatch
       <<-DETAILS
       file #{@expected_value} content did not match.
@@ -87,7 +106,9 @@ struct DirectoryExpectation
       #{@actual_content}
       <<< CONTENT
       >>> DID NOT MATCH
-      #{@expected_content.try { |nt| nt[:content] }}
+      #{@expected_content.try do |ec|
+        ec[:content] if ec.is_a? NamedTuple
+      end}
       <<< DID NOT MATCH
       DETAILS
     when Issue::ContentMismatch
@@ -97,7 +118,9 @@ struct DirectoryExpectation
       #{@actual_content}
       <<< ACTUAL
       >>> EXPECTED
-      #{@expected_content.try { |nt| nt[:content] }}
+      #{@expected_content.try do |ec|
+        ec[:content] if ec.is_a? NamedTuple
+      end}
       <<< EXPECTED
       DETAILS
     end
@@ -142,7 +165,7 @@ struct ProcessExpectation
   end
 end
 
-def have_file(file, content : NamedTuple(content: String, partial: Bool)|Nil = nil)
+def have_file(file, content : DirectoryExpectationValue = nil)
   DirectoryExpectation.new file, content
 end
 
@@ -157,6 +180,10 @@ end
 
 def with_content(content)
   {content: content, partial: false}
+end
+
+def with_package_members(members : Array(String))
+  members
 end
 
 def exit_code(value)

@@ -80,10 +80,11 @@ fn context_from<'a>(args: &'a ArgMatches<'a>) -> Result<(PathBuf, anders::Contex
 fn build_tasks() -> HashMap<String, anders::Task> {
     let mut map = HashMap::new();
     for task_name in &["compile", "package"] {
-       map.insert(String::from(*task_name), anders::Task {
-           before: Some(format!("echo before {}", task_name)),
-           after: Some(format!("echo after {}", task_name)),
-       });
+        map.insert(String::from(*task_name),
+                   anders::Task {
+                       before: Some(format!("echo before {}", task_name)),
+                       after: Some(format!("echo after {}", task_name)),
+                   });
     }
     map
 }
@@ -93,7 +94,7 @@ fn to_context<'a>(args: &ArgMatches<'a>) -> anders::Context {
         project: args.value_of("app-name").expect("app-name to be mandatory").to_owned(),
         package: args.value_of("package").expect("package to be mandatory").to_owned(),
         target: args.value_of("target").expect("target to be mandatory").to_owned(),
-        tasks: build_tasks()
+        tasks: build_tasks(),
     }
 }
 
