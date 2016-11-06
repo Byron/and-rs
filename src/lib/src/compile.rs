@@ -5,6 +5,8 @@ use super::{ChangeCWD, find_file_in_path, find_android_executable, execute_progr
 use glob::glob;
 use quick_error::ResultExt;
 
+pub const COMMAND_NAME: &'static str = "compile";
+
 pub fn compile_application(at: &Path, ctx: &Context) -> Result<(), BatchExecutionError> {
     let (aapt_path, android_home_dir) = try!(find_android_executable("aapt"));
     let javac_path = try!(find_file_in_path("javac"));

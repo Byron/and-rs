@@ -10,8 +10,8 @@ use std::fs::File;
 use std::io::{self, Write, stderr};
 use clap::{App, Arg, SubCommand, ArgMatches};
 use anders::scaffolding::{generate_application_scaffolding, CONTEXT_FILENAME};
-use anders::compile::compile_application;
-use anders::package::package_application;
+use anders::compile::{COMMAND_NAME as COMPILE_COMMAND, compile_application};
+use anders::package::{COMMAND_NAME as PACKAGE_COMMAND, package_application};
 use std::error::Error as StdError;
 use std::fmt::{self, Formatter, Display};
 
@@ -79,7 +79,7 @@ fn context_from<'a>(args: &'a ArgMatches<'a>) -> Result<(PathBuf, anders::Contex
 
 fn build_tasks() -> HashMap<String, anders::Task> {
     let mut map = HashMap::new();
-    for task_name in &["compile", "package"] {
+    for task_name in &[COMPILE_COMMAND, PACKAGE_COMMAND] {
         map.insert(String::from(*task_name),
                    anders::Task {
                        before: Some(format!("echo before {}", task_name)),

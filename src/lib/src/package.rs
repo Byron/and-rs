@@ -3,6 +3,8 @@ use super::{execute_program_verbosely, BatchExecutionError, Context, find_androi
             find_file_in_path, android_platform_jar_path, get_env_as_path, FindError,
             execute_program_verbosely_with_task};
 
+pub const COMMAND_NAME: &'static str = "package";
+
 fn fetch_or_create_android_keystore() -> Result<PathBuf, FindError> {
     const ANDROID_KEYSTORE_NAME: &'static str = "debug.keystore";
     let home = try!(get_env_as_path("HOME"));
