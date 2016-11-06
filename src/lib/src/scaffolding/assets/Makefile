@@ -19,7 +19,7 @@ ANDERS=$(DIST_DIR)/anders
 JAVA_SOURCE_FILES=$(shell find src -name '*.java' -type f)
 LIBRARY_FILES=$(shell find lib -name '*.jar' -type f)
 RESOURCE_FILES=$(shell find obj -name '*.xml' -type f)
-SIGNED_PACKAGE=bin/HelloWorld.apk
+SIGNED_PACKAGE=bin/${project}.apk
 
 $(CRYSTAL):
 	@bin/check.sh basic

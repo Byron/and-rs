@@ -41,6 +41,10 @@ fn resource_content(ctx: &Context) -> String {
     substitute_context(strip_heredoc(include_str!("./assets/resource.xml.cr")), ctx)
 }
 
+fn makefile_content(ctx: &Context) -> String {
+    substitute_context(include_str!("./assets/Makefile"), ctx)
+}
+
 fn write_utf8_file(contents: &str, path: &Path) -> Result<(), Error> {
     let mut f: File = try!(File::create(path).context(path));
     try!(f.write(contents.as_bytes()).context(PathToWriteTo(path)));
@@ -63,6 +67,7 @@ pub fn generate_application_scaffolding(ctx: &Context) -> Result<(), Error> {
     try!(create_dir_all(&package_dir).context(package_dir.as_path()));
     try!(create_dir_all(&resource_dir).context(resource_dir.as_path()));
     try!(write_utf8_file(&manifest_content(ctx), &app_path("AndroidManifest.xml")));
+    try!(write_utf8_file(&makefile_content(ctx), &app_path("Makefile")));
     try!(write_utf8_file(&java_content(ctx),
                          Path::new(&format!("{}/{}.java", package_dir.display(), ctx.project))));
     try!(write_utf8_file(&resource_content(ctx),
