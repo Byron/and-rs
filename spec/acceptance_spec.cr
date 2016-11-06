@@ -53,8 +53,8 @@ describe "`and" do
     end
   end
   
+  package_cmd = run_with "package"
   describe "package`" do
-    package_cmd = run_with "package"
     it "should produce a signed, zipaligned package from compiled sources" do
       members = ["AndroidManifest.xml", "classes.dex", "resources.arsc"]
       sandboxed_anders with_project_and_then(compile, package_cmd, **context), "--context=#{project}" do |process, sandbox|
@@ -65,6 +65,17 @@ describe "`and" do
         [".signed", ".unsigned", ""].each do |suffix|
           sandbox.should have_file "#{project}/bin/#{project}#{suffix}.apk", with_package_members members
         end
+      end
+    end
+  end
+
+  describe "launch`" do
+    launch = run_with "launch"
+    it "should attempt to send signed package to emulator" do
+      sandboxed_anders with_project_and_then(compile, package_cmd, launch, **context), "--context=#{project}" do |process, sandbox|
+        process.should be_successful
+        process.output.to_s.should contain "before launch"
+        process.output.to_s.should contain "after launch"
       end
     end
   end
