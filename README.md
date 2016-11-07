@@ -57,24 +57,26 @@ If you want to put the project into `git` and send it to others, they will be ab
  + specs are good-looking and easy to write, and that comes out of the box.
  + it's like a more ergonomic, easier to use and learn Rust. [Meet crystal][meet-crystal].
  + I consider it acceptable to not be able to run acceptance tests on windows for now.
- 
+
 #### Limitations
 ##### Development
  * Only `init-osx` is provided to help developer to get started. Other platforms are out of scope. It would be possible to install them only locally, using the [installation steps provided here][manual-android-platform-tools]
  * `crystal` currently does not work on windows, which limits development/running the specs to non-windows developers. This choice was made to get rid of Ruby, which was too
  * `make spec` currently needs multiple environment variables to be set, which might be inconvenient to the casual user.
- 
+
 ##### `Anders` Program Internals
  * Sometimes when doing IO, strings are used as buffers instead of using streams, for convenience.
  * When building program invocations, for convenience formatting functions are used. These enforce usage of UTF8, which can actually cause invalid paths to be generated on filesystems with non-UTF8 paths and non-ascii characters.
- 
+
 ##### `Anders` Program Features
  * It forces the java source and target language level to 1.7, as `dx` doesn't seem to support a higher level yet.
  * `tasks->(compile|pacakge|launch)->(before|after)` only support what can be specified in `bash -c <cmd-string>`
+ * It was never tested on _windows_, but should work if there are no `tasks` provided in the `anders.json` configuration file.
+ * Using `yaml` for the context serialization format would be favored by me, and could be implemented rather easily. Generally the story of Rust and serialization/deserialization will be a better one in a few weeks/months when the [required feature][serde-macros] is stabilized.
 
 #### Performance Considerations
  * No caching is done when finding tools in the `PATH` or in the `ANDROID_HOME`, doing more IOPS than strictly needed.
- 
+
 #### Security Considerations
 Generally, as an unprovileged command-line program, there is probably not too much that can go wrong. However, let's collect all usages of untrusted input that could be used to make the `anders` misbehave.
 
@@ -84,3 +86,4 @@ Generally, as an unprovileged command-line program, there is probably not too mu
 [exe-on-windows]: http://stackoverflow.com/questions/37498864/finding-executable-in-path-with-rust
 [manual-android-platform-tools]: http://stackoverflow.com/questions/31374085/installing-adb-on-mac-os-x
 [meet-crystal]: https://www.youtube.com/watch?v=tAw5puTcGhA
+[serde-macros]: https://users.rust-lang.org/t/serde-transitioning-to-macros-1-1/7437
