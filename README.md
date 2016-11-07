@@ -61,7 +61,7 @@ If you want to put the project into `git` and send it to others, they will be ab
 #### Limitations
 ##### Development
  * Only `init-osx` is provided to help developer to get started. Other platforms are out of scope. It would be possible to install them only locally, using the [installation steps provided here][manual-android-platform-tools]
- * `crystal` currently does not work on windows, which limits development/running the specs to non-windows developers. This choice was made to get rid of Ruby, which was too
+ * `crystal` currently does not work on windows, which limits development/running the specs to non-windows developers.
  * `make spec` currently needs multiple environment variables to be set, which might be inconvenient to the casual user.
 
 ##### `Anders` Program Internals
