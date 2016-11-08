@@ -70,7 +70,7 @@ If you want to put the project into `git` and send it to others, they will be ab
 
 ##### `Anders` Program Features
  * It forces the java source and target language level to 1.7, as `dx` doesn't seem to support a higher level yet.
- * `tasks->(compile|pacakge|launch)->(before|after)` only support what can be specified in `bash -c <cmd-string>`
+ * `tasks->(compile|pacakge|launch)->(before|after)` only support what can be specified in `sh -c <cmd-string>`
  * It was never tested on _windows_, but should work if there are no `tasks` provided in the `anders.json` configuration file.
  * Using `yaml` for the context serialization format would be favored by me, and could be implemented rather easily. Generally the story of Rust and serialization/deserialization will be a better one in a few weeks/months when the [required feature][serde-macros] is stabilized.
 
