@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 use std::io;
 use super::Context;
-use super::process::{FindError, ExecutionError, execute_bash_script_verbosely};
+use super::process::{FindError, ExecutionError, execute_shell_script_verbosely};
 
 pub fn android_platform_jar_path(android_home_dir: &Path, ctx: &Context) -> String {
     format!("{}/platforms/{}/android.jar",
@@ -21,7 +21,7 @@ pub fn extract_tasks_for<'a>(command: &'static str,
 
 pub fn execute_script(script: Option<&String>, at: &Path) -> Result<(), BatchExecutionError> {
     if let Some(script) = script {
-        try!(execute_bash_script_verbosely(at, script));
+        try!(execute_shell_script_verbosely(at, script));
     };
     Ok(())
 }

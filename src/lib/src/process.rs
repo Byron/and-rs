@@ -116,10 +116,10 @@ pub fn find_android_executable(name: &str) -> Result<(PathBuf, PathBuf), FindErr
     })
 }
 
-pub fn execute_bash_script_verbosely(at_dir: &Path,
+pub fn execute_shell_script_verbosely(at_dir: &Path,
                                      script: &str)
                                      -> Result<(), BatchExecutionError> {
-    let bash_path = try!(find_file_in_path("bash"));
+    let bash_path = try!(find_file_in_path("sh"));
     execute_program_verbosely(at_dir, &bash_path, &["-c", script]).map_err(Into::into)
 }
 
