@@ -4,8 +4,9 @@ use std::env;
 use std::io::{self, Write};
 use std::ffi::OsStr;
 use std::process::{ExitStatus, Command};
-use super::{path_delimiter, BatchExecutionError};
+use super::BatchExecutionError;
 use std::env::consts::EXE_SUFFIX;
+use std::env::split_paths;
 
 
 quick_error! {
@@ -52,10 +53,8 @@ quick_error! {
 
 pub fn find_file_in_path(name: &str) -> Result<PathBuf, FindError> {
     get_env_as_path("PATH").and_then(|path| {
-        path.to_string_lossy()
-            .split(path_delimiter())
-            .map(Path::new)
-            .map(|subpath| find_executable(subpath, name))
+        split_paths(&path)
+            .map(|subpath| find_executable(&subpath, name))
             .filter_map(Result::ok)
             .next()
             .ok_or_else(|| {

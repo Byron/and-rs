@@ -1,9 +1,10 @@
 use std::path::{PathBuf, Path};
 use super::{ChangeCWD, find_file_in_path, find_android_executable, execute_program_verbosely,
-            Context, path_delimiter, BatchExecutionError, android_platform_jar_path,
-            extract_tasks_for, execute_script};
+            Context, BatchExecutionError, android_platform_jar_path, extract_tasks_for,
+            execute_script};
 use glob::glob;
 use quick_error::ResultExt;
+use std::env::join_paths;
 
 pub const COMMAND_NAME: &'static str = "compile";
 
@@ -27,7 +28,8 @@ pub fn compile_application(at: &Path, ctx: &Context) -> Result<(), BatchExecutio
                                      "-I",
                                      &android_jar_path]));
 
-    let classpath = format!("{}{}obj", android_jar_path, path_delimiter());
+    let classpath = join_paths(&[&android_jar_path, "obj"])
+        .expect("an android jar path with no invalid characters");
     let source_files: Vec<_> = {
         let _in_project_dir = try!(ChangeCWD::into(at).context(at));
         glob("src/**/*.java")
@@ -45,7 +47,7 @@ pub fn compile_application(at: &Path, ctx: &Context) -> Result<(), BatchExecutio
                         "-d",
                         "obj",
                         "-classpath",
-                        &classpath,
+                        &classpath.to_str().expect("no non-utf8 characters in jar path"),
                         "-sourcepath",
                         "src"];
     for valid_java_path in source_files.iter().map(PathBuf::as_path).filter_map(Path::to_str) {
