@@ -21,14 +21,14 @@ mod context {
     fn it_rejects_non_latin_literals_in_target() {
         let name = "$1hi!";
         assert_eq!(ctx_from_target(name).verify(),
-        Err(ContextVerificationError::InvalidTargetName(name.to_owned())));
+                   Err(ContextVerificationError::InvalidTargetName(name.to_owned())));
     }
 
     #[test]
     fn it_rejects_spaces_in_target() {
         let name = "hello android";
         assert_eq!(ctx_from_target(name).verify(),
-        Err(ContextVerificationError::InvalidTargetName(name.to_owned())));
+                   Err(ContextVerificationError::InvalidTargetName(name.to_owned())));
     }
 
     fn ctx_from_project(name: &str) -> Context {
@@ -49,13 +49,13 @@ mod context {
     fn it_rejects_non_latin_literals_in_project() {
         let name = "$1hi!";
         assert_eq!(ctx_from_project(name).verify(),
-        Err(ContextVerificationError::InvalidProjectName(name.to_owned())));
+                   Err(ContextVerificationError::InvalidProjectName(name.to_owned())));
     }
 
     #[test]
     fn it_rejects_dashes_in_project() {
         let name = "Hello-World";
         assert_eq!(ctx_from_project(name).verify(),
-        Err(ContextVerificationError::InvalidProjectName(name.to_owned())));
+                   Err(ContextVerificationError::InvalidProjectName(name.to_owned())));
     }
 }

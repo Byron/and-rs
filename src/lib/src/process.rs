@@ -4,7 +4,8 @@ use std::env;
 use std::io::{self, Write};
 use std::ffi::OsStr;
 use std::process::{ExitStatus, Command};
-use super::{executable_suffix, path_delimiter, BatchExecutionError};
+use super::{path_delimiter, BatchExecutionError};
+use std::env::consts::EXE_SUFFIX;
 
 
 quick_error! {
@@ -69,7 +70,7 @@ pub fn find_file_in_path(name: &str) -> Result<PathBuf, FindError> {
 pub fn find_executable(root: &Path, name: &str) -> Result<PathBuf, FindError> {
     let name = {
         let mut n = name.to_owned();
-        n.push_str(executable_suffix());
+        n.push_str(EXE_SUFFIX);
         n
     };
     for entry in WalkDir::new(root) {
